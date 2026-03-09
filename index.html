@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gerencial Dubem</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #151820;
+    --surface2: #1c2030;
+    --border: #2a2f3f;
+    --accent: #f97316;
+    --accent2: #fb923c;
+    --text: #e8eaf0;
+    --muted: #6b7280;
+    --success: #22c55e;
+    --danger: #ef4444;
+    --warning: #eab308;
+    --info: #3b82f6;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
+
+  /* HEADER */
+  .header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 16px 28px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+  .logo { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: var(--accent); letter-spacing: -0.5px; }
+  .logo span { color: var(--text); font-weight: 400; }
+  .header-actions { display: flex; gap: 10px; align-items: center; }
+  .btn { padding: 8px 18px; border-radius: 8px; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: all 0.18s; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent2); transform: translateY(-1px); }
+  .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-danger { background: var(--danger); color: #fff; }
+  .btn-danger:hover { opacity: 0.85; }
+  .btn-success { background: var(--success); color: #fff; }
+  .btn-success:hover { opacity: 0.85; }
+  .btn-sm { padding: 5px 12px; font-size: 12px; }
+  .btn-icon { padding: 7px; border-radius: 7px; background: var(--surface2); border: 1px solid var(--border); color: var(--muted); cursor: pointer; transition: all 0.15s; line-height: 1; }
+  .btn-icon:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* MAIN */
+  .main { padding: 24px 28px; max-width: 1600px; margin: 0 auto; }
+
+  /* COUNTERS */
+  .counters { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+  .counter-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 22px; position: relative; overflow: hidden; }
+  .counter-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+  .counter-card.pedidos::before { background: var(--info); }
+  .counter-card.pecas::before { background: var(--accent); }
+  .counter-card.recebido::before { background: var(--success); }
+  .counter-card.areceber::before { background: var(--warning); }
+  .counter-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); font-weight: 600; margin-bottom: 8px; }
+  .counter-value { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 700; color: var(--text); }
+  .counter-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  /* FILTERS */
+  .filters-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 22px; }
+  .filters-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; }
+  .filters-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr auto; gap: 12px; align-items: end; }
+  .filter-group { display: flex; flex-direction: column; gap: 6px; }
+  .filter-label { font-size: 11px; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+  .filter-input, .filter-select { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 9px 13px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none; width: 100%; transition: border-color 0.15s; }
+  .filter-input:focus, .filter-select:focus { border-color: var(--accent); }
+  .filter-select option { background: var(--surface); }
+  .status-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+  .status-tab { padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--muted); transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
+  .status-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .status-tab:hover:not(.active) { border-color: var(--accent); color: var(--accent); }
+  .status-tab.tab-noprazo.active { background: var(--success); border-color: var(--success); }
+  .status-tab.tab-noprazo:hover:not(.active) { border-color: var(--success); color: var(--success); }
+  .status-tab.tab-atrasado.active { background: var(--danger); border-color: var(--danger); }
+  .status-tab.tab-atrasado:hover:not(.active) { border-color: var(--danger); color: var(--danger); }
+  .status-tab.tab-finalizado.active { background: var(--info); border-color: var(--info); }
+  .status-tab.tab-finalizado:hover:not(.active) { border-color: var(--info); color: var(--info); }
+  .status-tab.tab-entregue.active { background: #a855f7; border-color: #a855f7; }
+  .status-tab.tab-entregue:hover:not(.active) { border-color: #a855f7; color: #a855f7; }
+
+  /* TABLE */
+  .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+  .table-header { padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+  .table-title { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; }
+  .result-count { font-size: 12px; color: var(--muted); background: var(--surface2); padding: 4px 12px; border-radius: 20px; }
+  .table-scroll { overflow-x: auto; }
+  .table-scroll::-webkit-scrollbar { height: 6px; }
+  .table-scroll::-webkit-scrollbar-track { background: var(--surface2); }
+  .table-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  .table-scroll::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+  table { width: 100%; border-collapse: collapse; min-width: 900px; }
+  th { padding: 10px 10px; text-align: left; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); background: var(--surface2); border-bottom: 1px solid var(--border); white-space: nowrap; }
+  td { padding: 9px 10px; font-size: 12px; border-bottom: 1px solid #1a1f2e; vertical-align: middle; white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(249,115,22,0.04); }
+  .badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+  .badge-pendente { background: rgba(234,179,8,0.15); color: #eab308; }
+  .badge-producao { background: rgba(59,130,246,0.15); color: #60a5fa; }
+  .badge-concluido { background: rgba(34,197,94,0.15); color: #22c55e; }
+  .badge-entregue { background: rgba(168,85,247,0.15); color: #c084fc; }
+  .badge-cancelado { background: rgba(239,68,68,0.15); color: #ef4444; }
+  .badge-default { background: rgba(107,114,128,0.15); color: #9ca3af; }
+  .actions-cell { display: flex; gap: 6px; align-items: center; flex-wrap: nowrap; flex-shrink: 0; }
+  .row-edit, .row-delete { width: 32px; height: 32px; border-radius: 7px; border: none; cursor: pointer; font-size: 15px; font-family: 'DM Sans', sans-serif; transition: all 0.15s; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .row-edit { background: rgba(59,130,246,0.15); border: 1px solid rgba(59,130,246,0.25); }
+  .row-edit:hover { background: rgba(59,130,246,0.35); transform: scale(1.1); }
+  .row-delete { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); }
+  .row-delete:hover { background: #ef4444; border-color: #ef4444; transform: scale(1.1); box-shadow: 0 4px 12px rgba(239,68,68,0.4); }
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+  .empty-state svg { margin-bottom: 12px; opacity: 0.3; }
+  .empty-state p { font-size: 14px; }
+
+  /* MODAL */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; width: 680px; max-width: 95vw; max-height: 90vh; overflow-y: auto; }
+  .modal-header { padding: 22px 26px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--surface); z-index: 10; }
+  .modal-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; }
+  .modal-close { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 22px; line-height: 1; padding: 4px; }
+  .modal-close:hover { color: var(--text); }
+  .modal-body { padding: 24px 26px; }
+  .modal-footer { padding: 18px 26px; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-group { display: flex; flex-direction: column; gap: 7px; }
+  .form-group.full { grid-column: 1 / -1; }
+  .form-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); }
+  .form-input, .form-select { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 13px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none; width: 100%; transition: border-color 0.15s; }
+  .form-input:focus, .form-select:focus { border-color: var(--accent); }
+  .form-input:read-only { opacity: 0.5; cursor: not-allowed; }
+  .form-select option { background: var(--surface); }
+  .modal-section { margin-bottom: 22px; }
+  .modal-section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  .info-row { display: flex; gap: 12px; background: var(--surface2); border-radius: 10px; padding: 14px; margin-bottom: 16px; flex-wrap: wrap; }
+  .info-item { flex: 1; min-width: 120px; }
+  .info-item .lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
+  .info-item .val { font-size: 13px; font-weight: 500; }
+  .valor-display { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 700; color: var(--accent); }
+
+  /* LOADING */
+  .loading { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px; gap: 16px; color: var(--muted); }
+  .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* TOAST */
+  .toast-wrap { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+  .toast { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 20px; font-size: 13px; display: flex; align-items: center; gap: 10px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); animation: slideIn 0.25s ease; min-width: 260px; }
+  .toast.success { border-left: 3px solid var(--success); }
+  .toast.error { border-left: 3px solid var(--danger); }
+  @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+  /* CONFIRM */
+  .confirm-dialog { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 28px; width: 380px; max-width: 95vw; text-align: center; }
+  .confirm-icon { font-size: 40px; margin-bottom: 14px; }
+  .confirm-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+  .confirm-msg { color: var(--muted); font-size: 13px; margin-bottom: 22px; }
+  .confirm-actions { display: flex; gap: 10px; justify-content: center; }
+
+  @media(max-width: 900px) {
+    .filters-grid { grid-template-columns: 1fr 1fr; }
+    .counters { grid-template-columns: 1fr 1fr; }
+    .form-grid { grid-template-columns: 1fr; }
+  }
+  @media(max-width: 600px) {
+    .main { padding: 14px; }
+    .counters { grid-template-columns: 1fr 1fr; }
+    .filters-grid { grid-template-columns: 1fr; }
+    .header { padding: 12px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">Gerencial <span>Dubem</span></div>
+  <div class="header-actions">
+    <button class="btn btn-outline" onclick="loadData()">↺ Atualizar</button>
+    <button class="btn btn-outline" onclick="configScript()" id="btn-config" title="Configurar sincronização com Google Sheets">⚙️ Sincronizar</button>
+    <button class="btn btn-primary" onclick="exportPDF()">⬇ Exportar PDF</button>
+  </div>
+</div>
+
+<div class="main">
+  <!-- COUNTERS -->
+  <div class="counters">
+    <div class="counter-card pedidos">
+      <div class="counter-label">Pedidos</div>
+      <div class="counter-value" id="cnt-pedidos">–</div>
+      <div class="counter-sub">na seleção atual</div>
+    </div>
+    <div class="counter-card pecas">
+      <div class="counter-label">Peças</div>
+      <div class="counter-value" id="cnt-pecas">–</div>
+      <div class="counter-sub">quantidade total</div>
+    </div>
+    <div class="counter-card recebido">
+      <div class="counter-label">Valor Recebido</div>
+      <div class="counter-value" id="cnt-recebido">–</div>
+      <div class="counter-sub">R$ total recebido</div>
+    </div>
+    <div class="counter-card areceber">
+      <div class="counter-label">A Receber</div>
+      <div class="counter-value" id="cnt-areceber">–</div>
+      <div class="counter-sub">R$ pendente</div>
+    </div>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="filters-wrap">
+    <div class="filters-title">🔍 Filtros</div>
+    <div class="status-tabs" id="status-tabs">
+      <button class="status-tab active" data-status="" onclick="setStatus('')">Todos</button>
+      <button class="status-tab tab-noprazo" data-status="noprazo" onclick="setStatus('noprazo')">✅ No Prazo</button>
+      <button class="status-tab tab-atrasado" data-status="atrasado" onclick="setStatus('atrasado')">🔴 Atrasado</button>
+      <button class="status-tab tab-finalizado" data-status="finalizado" onclick="setStatus('finalizado')">🏁 Na Loja</button>
+      <button class="status-tab tab-entregue" data-status="entregue" onclick="setStatus('entregue')">📦 Entregue</button>
+    </div>
+    <div class="filters-grid">
+      <div class="filter-group">
+        <label class="filter-label">Busca Global</label>
+        <input class="filter-input" id="f-global" placeholder="Buscar em qualquer coluna..." oninput="applyFilters()">
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Cliente</label>
+        <input class="filter-input" id="f-cliente" placeholder="Nome do cliente..." oninput="applyFilters()">
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Comanda</label>
+        <input class="filter-input" id="f-comanda" placeholder="Nº comanda..." oninput="applyFilters()">
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Data Início</label>
+        <input class="filter-input" type="date" id="f-data-ini" onchange="applyFilters()">
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Data Fim</label>
+        <input class="filter-input" type="date" id="f-data-fim" onchange="applyFilters()">
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">&nbsp;</label>
+        <button class="btn btn-outline" onclick="clearFilters()">✕ Limpar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-wrap">
+    <div class="table-header">
+      <div class="table-title">Pedidos</div>
+      <div class="result-count" id="result-count">Carregando...</div>
+    </div>
+    <div id="table-container">
+      <div class="loading"><div class="spinner"></div><p>Carregando dados da planilha...</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDIÇÃO -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">✏️ Editar Pedido</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer" style="justify-content:space-between">
+      <button class="btn btn-danger" id="modal-delete-btn" onclick="openDeleteFromModal()">🗑️ Excluir Pedido</button>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+        <button class="btn btn-success" onclick="saveEdit()">💾 Salvar Alterações</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="confirm-modal">
+  <div class="confirm-dialog">
+    <div class="confirm-icon">🗑️</div>
+    <div class="confirm-title">Excluir Pedido?</div>
+    <div class="confirm-msg" id="confirm-msg">Esta ação não pode ser desfeita.</div>
+    <div class="confirm-actions">
+      <button class="btn btn-outline" onclick="closeConfirm()">Cancelar</button>
+      <button class="btn btn-danger" onclick="confirmDelete()">Excluir</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTygxpsLUiyKRk9O5_sTkTFo8aa4ByDHTZqghp1SBjLtDKaQbKFiDaNNANcAbmXWDFFlfnR_oUuwRI2/pub?gid=0&single=true&output=csv';
+// Cole aqui o link do Apps Script após publicar
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwta7K3wx2nA4_SxN0Q2BKULH0S8QO8PDLDeDWbdi6Rm5D-GwNy_ol6cveWKAPqzU5BXw/exec';
+const CORS_PROXIES = [
+  `https://corsproxy.io/?url=${encodeURIComponent(SHEET_CSV)}`,
+  `https://api.allorigins.win/raw?url=${encodeURIComponent(SHEET_CSV)}`,
+  `https://thingproxy.freeboard.io/fetch/${SHEET_CSV}`,
+];
+
+const COLS = {
+  COMANDA: 0, DATA_PEDIDO: 1, CLIENTE: 2, QUANTIDADE: 3, VALOR: 4,
+  RECEBIDO: 5, A_RECEBER: 6, RECEBIDO2: 7, DATA2: 8, PRODUTO: 9,
+  SUBLIMACAO: 10, GOLA: 11, TECIDO: 12, LOCAL: 13, DESIGNER: 14,
+  PREV_ENTREGA: 15, DT_PRODUCAO: 16, STATUS: 17, COSTURA: 18,
+  OBS: 19, FORMA: 20, FORMA2: 21, SECAO: 22, ENDERECO: 23, CONTATO: 24
+};
+
+const EDITABLE_FIELDS = [
+  { key: 'A_RECEBER', label: 'À Receber (R$)', col: 6, type: 'text' },
+  { key: 'RECEBIDO2', label: 'Recebido 2ª Parcela', col: 7, type: 'text' },
+  { key: 'DATA2', label: 'Data 2ª Parcela', col: 8, type: 'date' },
+  { key: 'LOCAL', label: 'Local da Produção', col: 13, type: 'select', options: ['', 'Plotter', 'Costura', 'Aguardando Retirada'] },
+  { key: 'DESIGNER', label: 'Designer', col: 14, type: 'text' },
+  { key: 'PREV_ENTREGA', label: 'Prev. Entrega', col: 15, type: 'date' },
+  { key: 'DT_PRODUCAO', label: 'DT Produção', col: 16, type: 'date' },
+  { key: 'STATUS', label: 'Status', col: 17, type: 'select', options: ['', 'Na Loja', 'Entregue'] },
+  { key: 'COSTURA', label: 'Costura', col: 18, type: 'text' },
+  { key: 'FORMA', label: 'Forma', col: 20, type: 'select', options: ['', 'Dinheiro', 'Cartão', 'Pix'] },
+  { key: 'FORMA2', label: 'Forma 2', col: 21, type: 'select', options: ['', 'Dinheiro', 'Cartão', 'Pix'] },
+];
+
+let allData = [];
+let filteredData = [];
+let activeStatus = '';
+let deleteIndex = null;
+
+function toast(msg, type = 'success') {
+  const w = document.getElementById('toast-wrap');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = `<span>${type === 'success' ? '✓' : '✕'}</span><span>${msg}</span>`;
+  w.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+function loadData() {
+  document.getElementById('table-container').innerHTML = '<div class="loading"><div class="spinner"></div><p>Carregando dados...</p></div>';
+  
+  // Adiciona timestamp para forçar bypass do cache do Google (que dura até 1h)
+  const cacheBust = `&t=${Date.now()}`;
+  const CSV_NOCACHE = SHEET_CSV + cacheBust;
+
+  // Tentar com Papa.parse download (bypass CORS nativo)
+  function tryLoad(urlIndex) {
+    const urls = [
+      CSV_NOCACHE,
+      `https://corsproxy.io/?url=${encodeURIComponent(CSV_NOCACHE)}`,
+      `https://api.allorigins.win/raw?url=${encodeURIComponent(CSV_NOCACHE)}`,
+    ];
+    if (urlIndex >= urls.length) {
+      showError();
+      return;
+    }
+    Papa.parse(urls[urlIndex], {
+      download: true,
+      header: false,
+      skipEmptyLines: true,
+      complete: function(results) {
+        if (!results.data || results.data.length < 2) {
+          tryLoad(urlIndex + 1);
+          return;
+        }
+        // Find the header row (row with "Comanda" in col A)
+        let headerIdx = -1;
+        for (let i = 0; i < Math.min(results.data.length, 10); i++) {
+          const cell = (results.data[i][0] || '').toString().trim().toLowerCase();
+          if (cell === 'comanda') { headerIdx = i; break; }
+        }
+        // If not found, assume row 0 is header
+        if (headerIdx < 0) headerIdx = 0;
+        const rows = results.data.slice(headerIdx + 1).filter(r => r.some(c => (c||'').toString().trim() !== ''));
+        if (rows.length === 0) { tryLoad(urlIndex + 1); return; }
+        allData = rows.map((r, i) => ({ _id: i, _row: r.map(c => (c || '').toString().trim()) }));
+        buildStatusTabs();
+        applyFilters();
+        toast(`Dados carregados: ${allData.length} pedidos`);
+      },
+      error: function(err) {
+        console.warn('Falhou URL index', urlIndex, err);
+        tryLoad(urlIndex + 1);
+      }
+    });
+  }
+
+  function showError() {
+    document.getElementById('table-container').innerHTML = `<div class="empty-state" style="max-width:560px;margin:0 auto">
+      <p style="font-size:16px;font-weight:600;margin-bottom:10px">❌ Não foi possível carregar automaticamente</p>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:20px">
+        Abra o link abaixo no navegador, selecione tudo (Ctrl+A), copie (Ctrl+C) e cole no campo abaixo:
+        <br><a href="${SHEET_CSV}" target="_blank" style="color:var(--accent);word-break:break-all">${SHEET_CSV}</a>
+      </p>
+      <textarea id="csv-paste" placeholder="Cole o conteúdo CSV aqui..." style="width:100%;height:140px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text);font-size:12px;font-family:monospace;resize:vertical;outline:none"></textarea>
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:14px">
+        <button class="btn btn-primary" onclick="loadFromPaste()">📋 Carregar CSV colado</button>
+        <button class="btn btn-outline" onclick="loadData()">↺ Tentar novamente</button>
+      </div>
+    </div>`;
+    toast('Erro ao carregar dados', 'error');
+  }
+
+  tryLoad(0);
+}
+
+function buildStatusTabs() {
+  // Tabs are static — just update active state
+  document.querySelectorAll('.status-tab').forEach(b => b.classList.toggle('active', b.dataset.status === activeStatus));
+}
+
+function setStatus(s) {
+  activeStatus = s;
+  document.querySelectorAll('.status-tab').forEach(b => b.classList.toggle('active', b.dataset.status === s));
+  applyFilters();
+}
+
+function parseDate(str) {
+  if (!str) return null;
+  const parts = str.split('/');
+  if (parts.length === 3) return new Date(parts[2], parts[1]-1, parts[0]);
+  const d = new Date(str);
+  return isNaN(d) ? null : d;
+}
+
+function parseCurrency(str) {
+  if (!str) return 0;
+  return parseFloat(str.replace(/[R$\s.]/g, '').replace(',', '.')) || 0;
+}
+
+function applyFilters() {
+  const global = document.getElementById('f-global').value.toLowerCase();
+  const cliente = document.getElementById('f-cliente').value.toLowerCase();
+  const comanda = document.getElementById('f-comanda').value.toLowerCase();
+  const dataIni = document.getElementById('f-data-ini').value;
+  const dataFim = document.getElementById('f-data-fim').value;
+
+  filteredData = allData.filter(d => {
+    const r = d._row;
+    if (activeStatus) {
+      const status = (r[COLS.STATUS] || '').toLowerCase().trim();
+      const prevEntrega = parseDate(r[COLS.PREV_ENTREGA]);
+      const hoje = new Date(); hoje.setHours(0,0,0,0);
+      const entregue = status.includes('entregue') || status.includes('entrega');
+      const finalizadoLoja = status.includes('finalizado') || status.includes('conclu') || status.includes('loja') || status === 'na loja';
+      if (activeStatus === 'noprazo') {
+        // No prazo: tem data de entrega, não está entregue/finalizado, e a data >= hoje
+        if (entregue || finalizadoLoja) return false;
+        if (!prevEntrega || prevEntrega < hoje) return false;
+      } else if (activeStatus === 'atrasado') {
+        // Atrasado: tem data de entrega, não está entregue/finalizado, e a data < hoje
+        if (entregue || finalizadoLoja) return false;
+        if (!prevEntrega || prevEntrega >= hoje) return false;
+      } else if (activeStatus === 'finalizado') {
+        if (!finalizadoLoja) return false;
+      } else if (activeStatus === 'entregue') {
+        if (!entregue) return false;
+      }
+    }
+    if (cliente && !r[COLS.CLIENTE].toLowerCase().includes(cliente)) return false;
+    if (comanda && !r[COLS.COMANDA].toLowerCase().includes(comanda)) return false;
+    if (dataIni || dataFim) {
+      const dt = parseDate(r[COLS.DATA_PEDIDO]);
+      if (dataIni && dt && dt < new Date(dataIni)) return false;
+      if (dataFim && dt && dt > new Date(dataFim + 'T23:59:59')) return false;
+    }
+    if (global) {
+      const found = r.some(cell => cell.toLowerCase().includes(global));
+      if (!found) return false;
+    }
+    return true;
+  });
+
+  updateCounters();
+  renderTable();
+}
+
+function clearFilters() {
+  document.getElementById('f-global').value = '';
+  document.getElementById('f-cliente').value = '';
+  document.getElementById('f-comanda').value = '';
+  document.getElementById('f-data-ini').value = '';
+  document.getElementById('f-data-fim').value = '';
+  activeStatus = '';
+  document.querySelectorAll('.status-tab').forEach(b => b.classList.toggle('active', b.dataset.status === ''));
+  applyFilters();
+}
+
+function updateCounters() {
+  const pedidos = filteredData.length;
+  const pecas = filteredData.reduce((s, d) => s + (parseInt(d._row[COLS.QUANTIDADE]) || 0), 0);
+  const recebido = filteredData.reduce((s, d) => s + parseCurrency(d._row[COLS.RECEBIDO]), 0);
+  const areceber = filteredData.reduce((s, d) => s + parseCurrency(d._row[COLS.A_RECEBER]), 0);
+  document.getElementById('cnt-pedidos').textContent = pedidos;
+  document.getElementById('cnt-pecas').textContent = pecas;
+  document.getElementById('cnt-recebido').textContent = 'R$ ' + recebido.toLocaleString('pt-BR', {minimumFractionDigits:2});
+  document.getElementById('cnt-areceber').textContent = 'R$ ' + areceber.toLocaleString('pt-BR', {minimumFractionDigits:2});
+  document.getElementById('result-count').textContent = pedidos + ' registro(s)';
+}
+
+function getBadgeClass(status) {
+  if (!status) return 'badge-default';
+  const s = status.toLowerCase();
+  if (s.includes('pend')) return 'badge-pendente';
+  if (s.includes('prod')) return 'badge-producao';
+  if (s.includes('conclu')) return 'badge-concluido';
+  if (s.includes('entreg')) return 'badge-entregue';
+  if (s.includes('cancel')) return 'badge-cancelado';
+  return 'badge-default';
+}
+
+function renderTable() {
+  const c = document.getElementById('table-container');
+  if (!filteredData.length) {
+    c.innerHTML = '<div class="empty-state"><p>Nenhum pedido encontrado para os filtros selecionados.</p></div>';
+    return;
+  }
+  let html = `<div class="table-scroll"><table>
+    <thead><tr>
+      <th>Comanda</th><th>Data</th><th>Cliente</th><th>Qtd</th>
+      <th>Valor</th><th>Recebido</th><th>À Receber</th>
+      <th>Produto</th><th>Status</th><th>Prev. Entrega</th><th style="min-width:80px;width:80px">Ações</th>
+    </tr></thead><tbody>`;
+  filteredData.forEach(d => {
+    const r = d._row;
+    const badgeClass = getBadgeClass(r[COLS.STATUS]);
+    html += `<tr>
+      <td><strong>${r[COLS.COMANDA]||'–'}</strong></td>
+      <td>${r[COLS.DATA_PEDIDO]||'–'}</td>
+      <td>${r[COLS.CLIENTE]||'–'}</td>
+      <td>${r[COLS.QUANTIDADE]||'–'}</td>
+      <td>${r[COLS.VALOR]||'–'}</td>
+      <td style="color:var(--success)">${r[COLS.RECEBIDO]||'–'}</td>
+      <td style="color:var(--warning)">${r[COLS.A_RECEBER]||'–'}</td>
+      <td>${r[COLS.PRODUTO]||'–'}</td>
+      <td><span class="badge ${badgeClass}">${r[COLS.STATUS]||'–'}</span></td>
+      <td>${r[COLS.PREV_ENTREGA]||'–'}</td>
+      <td><div class="actions-cell">
+        <button class="row-edit" onclick="openEdit(${d._id})" title="Editar pedido">✏️</button>
+        <button class="row-delete" onclick="openDelete(${d._id})" title="Excluir pedido">🗑️</button>
+      </div></td>
+    </tr>`;
+  });
+  html += '</tbody></table></div>';
+  c.innerHTML = html;
+}
+
+function openEdit(id) {
+  const d = allData.find(x => x._id === id);
+  if (!d) return;
+  window._currentEditId = id;
+  const r = d._row;
+  const body = document.getElementById('modal-body');
+  body.innerHTML = `
+    <div class="modal-section">
+      <div class="modal-section-title">Informações do Pedido</div>
+      <div class="info-row">
+        <div class="info-item"><div class="lbl">Comanda</div><div class="val">${r[COLS.COMANDA]||'–'}</div></div>
+        <div class="info-item"><div class="lbl">Data</div><div class="val">${r[COLS.DATA_PEDIDO]||'–'}</div></div>
+        <div class="info-item"><div class="lbl">Cliente</div><div class="val">${r[COLS.CLIENTE]||'–'}</div></div>
+        <div class="info-item"><div class="lbl">Produto</div><div class="val">${r[COLS.PRODUTO]||'–'}</div></div>
+      </div>
+      <div class="form-group"><div class="filter-label">Valor Total (R$) — apenas visualização</div>
+        <div class="valor-display">${r[COLS.VALOR]||'–'}</div>
+      </div>
+    </div>
+    <div class="modal-section">
+      <div class="modal-section-title">Campos Editáveis</div>
+      <div class="form-grid" id="edit-fields" data-id="${id}">
+        ${EDITABLE_FIELDS.map(f => {
+          let input = '';
+          if (f.type === 'select') {
+            input = `<select class="form-select" data-col="${f.col}" id="ef-${f.key}">
+              ${f.options.map(o => `<option value="${o}" ${r[f.col]===o?'selected':''}>${o}</option>`).join('')}
+            </select>`;
+          } else {
+            let val = r[f.col] || '';
+            if (f.type === 'date' && val) {
+              const parts = val.split('/');
+              if (parts.length === 3) val = `${parts[2]}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}`;
+            }
+            input = `<input class="form-input" type="${f.type}" data-col="${f.col}" id="ef-${f.key}" value="${val}">`;
+          }
+          return `<div class="form-group"><label class="form-label">${f.label}</label>${input}</div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  document.getElementById('edit-modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('edit-modal').classList.remove('open');
+}
+
+async function saveEdit() {
+  const container = document.getElementById('edit-fields');
+  const id = parseInt(container.dataset.id);
+  const d = allData.find(x => x._id === id);
+  if (!d) return;
+
+  const updates = {};
+  EDITABLE_FIELDS.forEach(f => {
+    const el = document.getElementById(`ef-${f.key}`);
+    if (el) {
+      let val = el.value;
+      if (f.type === 'date' && val) {
+        const parts = val.split('-');
+        if (parts.length === 3) val = `${parts[2]}/${parts[1]}/${parts[0]}`;
+      }
+      d._row[f.col] = val;
+      updates[f.col] = val;
+    }
+  });
+
+  closeModal();
+  applyFilters();
+
+  // Salvar na planilha via Apps Script
+  if (APPS_SCRIPT_URL) {
+    try {
+      const comanda = d._row[COLS.COMANDA];
+      const payload = JSON.stringify({ action: 'update', comanda, updates });
+      const url = `${APPS_SCRIPT_URL}?data=${encodeURIComponent(payload)}`;
+      const res = await fetch(url);
+      const json = await res.json().catch(() => ({}));
+      if (json.success) {
+        toast('✅ Pedido salvo na planilha!');
+      } else {
+        toast('⚠️ Erro: ' + (json.error || 'Falha ao salvar'), 'error');
+      }
+    } catch (err) {
+      toast('⚠️ Falhou ao sincronizar: ' + err.message, 'error');
+    }
+  } else {
+    toast('Pedido atualizado localmente. Configure ⚙️ Sincronizar para salvar na planilha.');
+  }
+}
+
+function openDeleteFromModal() {
+  const container = document.getElementById('edit-fields');
+  if (!container) return;
+  const id = parseInt(container.dataset.id);
+  closeModal();
+  openDelete(id);
+}
+
+function openDelete(id) {
+  deleteIndex = id;
+  const d = allData.find(x => x._id === id);
+  if (d) {
+    document.getElementById('confirm-msg').textContent = `Excluir pedido da comanda ${d._row[COLS.COMANDA]} — ${d._row[COLS.CLIENTE]}?`;
+  }
+  document.getElementById('confirm-modal').classList.add('open');
+}
+
+function closeConfirm() {
+  document.getElementById('confirm-modal').classList.remove('open');
+  deleteIndex = null;
+}
+
+async function confirmDelete() {
+  if (deleteIndex === null) return;
+  const d = allData.find(x => x._id === deleteIndex);
+  allData = allData.filter(x => x._id !== deleteIndex);
+  closeConfirm();
+  buildStatusTabs();
+  applyFilters();
+
+  // Excluir na planilha via Apps Script
+  if (APPS_SCRIPT_URL && d) {
+    try {
+      const comanda = d._row[COLS.COMANDA];
+      const payload = JSON.stringify({ action: 'delete', comanda });
+      const url = `${APPS_SCRIPT_URL}?data=${encodeURIComponent(payload)}`;
+      const res = await fetch(url);
+      const json = await res.json().catch(() => ({}));
+      if (json.success) {
+        toast('🗑️ Pedido excluído da planilha!');
+      } else {
+        toast('⚠️ Erro: ' + (json.error || 'Falha ao excluir'), 'error');
+      }
+    } catch (err) {
+      toast('⚠️ Falhou ao sincronizar: ' + err.message, 'error');
+    }
+  } else {
+    toast('Pedido excluído localmente.');
+  }
+}
+
+function fmtMoney(val) {
+  return 'R$ ' + val.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+}
+
+function exportPDF() {
+  const pedidos = filteredData.length;
+  const pecas = filteredData.reduce((s, d) => s + (parseInt(d._row[COLS.QUANTIDADE]) || 0), 0);
+  const recebido = filteredData.reduce((s, d) => s + parseCurrency(d._row[COLS.RECEBIDO]), 0);
+  const areceber = filteredData.reduce((s, d) => s + parseCurrency(d._row[COLS.A_RECEBER]), 0);
+  const statusLabel = activeStatus || 'Todos';
+  const now = new Date().toLocaleDateString('pt-BR');
+
+  let rows = filteredData.map(d => {
+    const r = d._row;
+    return `<tr>
+      <td>${r[COLS.COMANDA]||''}</td>
+      <td>${r[COLS.DATA_PEDIDO]||''}</td>
+      <td>${r[COLS.CLIENTE]||''}</td>
+      <td>${r[COLS.QUANTIDADE]||''}</td>
+      <td>${r[COLS.VALOR]||''}</td>
+      <td>${r[COLS.RECEBIDO]||''}</td>
+      <td>${r[COLS.A_RECEBER]||''}</td>
+      <td>${r[COLS.PRODUTO]||''}</td>
+      <td>${r[COLS.STATUS]||''}</td>
+      <td>${r[COLS.PREV_ENTREGA]||''}</td>
+    </tr>`;
+  }).join('');
+
+  const html = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">
+  <title>Relatório Dubem — ${statusLabel}</title>
+  <style>
+    body { font-family: Arial, sans-serif; font-size: 12px; color: #1a1a1a; margin: 20px; }
+    h1 { font-size: 20px; color: #f97316; margin-bottom: 4px; }
+    .sub { color: #666; margin-bottom: 18px; font-size: 11px; }
+    .counters { display: flex; gap: 16px; margin-bottom: 20px; }
+    .card { border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px 18px; flex: 1; }
+    .card .lbl { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+    .card .val { font-size: 20px; font-weight: 700; color: #1a1a1a; }
+    table { width: 100%; border-collapse: collapse; font-size: 11px; }
+    th { background: #f3f4f6; padding: 8px 10px; text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: #555; border-bottom: 2px solid #e5e7eb; }
+    td { padding: 7px 10px; border-bottom: 1px solid #f3f4f6; }
+    tr:nth-child(even) td { background: #fafafa; }
+    @media print { body { margin: 10px; } }
+  </style></head><body>
+  <h1>Gerencial Dubem</h1>
+  <div class="sub">Relatório: <strong>${statusLabel}</strong> — Gerado em ${now}</div>
+  <div class="counters">
+    <div class="card"><div class="lbl">Pedidos</div><div class="val">${pedidos}</div></div>
+    <div class="card"><div class="lbl">Peças</div><div class="val">${pecas}</div></div>
+    <div class="card"><div class="lbl">Valor Recebido</div><div class="val">${fmtMoney(recebido)}</div></div>
+    <div class="card"><div class="lbl">À Receber</div><div class="val">${fmtMoney(areceber)}</div></div>
+  </div>
+  <table>
+    <thead><tr>
+      <th>Comanda</th><th>Data</th><th>Cliente</th><th>Qtd</th>
+      <th>Valor</th><th>Recebido</th><th>À Receber</th>
+      <th>Produto</th><th>Status</th><th>Prev. Entrega</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>
+  <script>window.onload=()=>{window.print();}<\/script>
+  </body></html>`;
+
+  const w = window.open('', '_blank');
+  w.document.write(html);
+  w.document.close();
+}
+
+
+function loadFromPaste() {
+  const text = document.getElementById('csv-paste').value.trim();
+  if (!text) { toast('Cole o conteúdo CSV primeiro', 'error'); return; }
+  const parsed = Papa.parse(text, { header: false, skipEmptyLines: true });
+  if (!parsed.data || parsed.data.length < 2) { toast('CSV inválido ou vazio', 'error'); return; }
+  let headerIdx = -1;
+  for (let i = 0; i < Math.min(parsed.data.length, 10); i++) {
+    const cell = (parsed.data[i][0] || '').toString().trim().toLowerCase();
+    if (cell === 'comanda') { headerIdx = i; break; }
+  }
+  if (headerIdx < 0) headerIdx = 0;
+  const rows = parsed.data.slice(headerIdx + 1).filter(r => r.some(c => (c||'').toString().trim() !== ''));
+  allData = rows.map((r, i) => ({ _id: i, _row: r.map(c => (c || '').toString().trim()) }));
+  buildStatusTabs();
+  applyFilters();
+  toast('Dados carregados com sucesso!');
+}
+
+// close modals on overlay click
+document.getElementById('edit-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+document.getElementById('confirm-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeConfirm();
+});
+
+function configScript() {
+  const current = APPS_SCRIPT_URL || '';
+  const url = prompt('Cole aqui o link do Google Apps Script:\n(Deixe vazio para desativar a sincronização)', current);
+  if (url === null) return; // cancelled
+  // Store in localStorage for persistence
+  if (url.trim()) {
+    localStorage.setItem('apps_script_url', url.trim());
+    window.APPS_SCRIPT_URL_OVERRIDE = url.trim();
+    document.getElementById('btn-config').style.borderColor = 'var(--success)';
+    document.getElementById('btn-config').style.color = 'var(--success)';
+    toast('✅ Sincronização configurada!');
+  } else {
+    localStorage.removeItem('apps_script_url');
+    window.APPS_SCRIPT_URL_OVERRIDE = '';
+    document.getElementById('btn-config').style.borderColor = '';
+    document.getElementById('btn-config').style.color = '';
+    toast('Sincronização desativada.');
+  }
+}
+
+// Override APPS_SCRIPT_URL with stored value
+(function() {
+  const stored = localStorage.getItem('apps_script_url');
+  if (stored) {
+    window.APPS_SCRIPT_URL_OVERRIDE = stored;
+    document.addEventListener('DOMContentLoaded', () => {
+      const btn = document.getElementById('btn-config');
+      if (btn) { btn.style.borderColor = 'var(--success)'; btn.style.color = 'var(--success)'; }
+    });
+  }
+})();
+
+// Patch APPS_SCRIPT_URL to use override if available
+Object.defineProperty(window, 'APPS_SCRIPT_URL', {
+  get: () => window.APPS_SCRIPT_URL_OVERRIDE || '',
+  configurable: true
+});
+
+loadData();
+
+// ── Auto-atualização a cada 5 minutos ──
+var autoRefreshInterval = 5 * 60 * 1000; // 5 minutos em ms
+var countdownTimer = null;
+var refreshTimer = null;
+
+function iniciarAutoRefresh() {
+  if (refreshTimer) clearInterval(refreshTimer);
+  if (countdownTimer) clearInterval(countdownTimer);
+
+  var segundosRestantes = autoRefreshInterval / 1000;
+
+  // Atualiza contador no botão
+  countdownTimer = setInterval(function() {
+    segundosRestantes--;
+    var min = Math.floor(segundosRestantes / 60);
+    var seg = segundosRestantes % 60;
+    var btnAtualizar = document.querySelector('button[onclick="loadData()"]');
+    if (btnAtualizar) {
+      btnAtualizar.title = 'Próxima atualização em ' + min + ':' + (seg < 10 ? '0' : '') + seg;
+    }
+    if (segundosRestantes <= 0) segundosRestantes = autoRefreshInterval / 1000;
+  }, 1000);
+
+  // Recarrega dados a cada 5 minutos
+  refreshTimer = setInterval(function() {
+    segundosRestantes = autoRefreshInterval / 1000;
+    loadData();
+  }, autoRefreshInterval);
+}
+
+iniciarAutoRefresh();
+</script>
+</body>
+</html>
