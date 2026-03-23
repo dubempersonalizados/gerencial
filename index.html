@@ -1039,6 +1039,7 @@ function renderDashboard() {
       if (dtPedido && dtPedido.getMonth()+1 === mes && dtPedido.getFullYear() === ano && rec1 > 0) {
         r[f1] = (r[f1] || 0) + rec1;
         r.total += rec1;
+        if (f1 === 'Pix') console.log(`PIX P1 ✅ Comanda:${row[COLS.COMANDA]} Data:${row[COLS.DATA_PEDIDO]} Valor:${rec1}`);
       }
 
       // Parcela 2: usa DATA2 (col I) se preenchida, senão usa DATA_PEDIDO como fallback
@@ -1049,9 +1050,19 @@ function renderDashboard() {
         if (dtParc2 && dtParc2.getMonth()+1 === mes && dtParc2.getFullYear() === ano) {
           r[f2] = (r[f2] || 0) + rec2;
           r.total += rec2;
+          if (f2 === 'Pix') console.log(`PIX P2 ✅ Comanda:${row[COLS.COMANDA]} Data2:${row[COLS.DATA2]||'(sem data, usa pedido)'} Valor:${rec2}`);
+        } else if (f2 === 'Pix') {
+          console.warn(`PIX P2 ❌ Comanda:${row[COLS.COMANDA]} Data2:${row[COLS.DATA2]} DataPedido:${row[COLS.DATA_PEDIDO]} Valor:${rec2} — fora do mês`);
         }
       }
+
+      // Log parcela 1 Pix ignorada
+      if (f1 === 'Pix' && rec1 > 0 && !(dtPedido && dtPedido.getMonth()+1 === mes && dtPedido.getFullYear() === ano)) {
+        console.warn(`PIX P1 ❌ Comanda:${row[COLS.COMANDA]} DataPedido:${row[COLS.DATA_PEDIDO]} Valor:${rec1} — fora do mês`);
+      }
     });
+
+    console.log('─── TOTAL Pix março/2026: R$', r.Pix.toFixed(2));
     return r;
   }
 
