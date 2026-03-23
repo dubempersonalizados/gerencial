@@ -1028,6 +1028,7 @@ function renderDashboard() {
 
   function calcFaturamento(todosDados) {
     const r = { Dinheiro: 0, Pix: 0, 'Cartão': 0, total: 0 };
+    const pixIgnorados = [];
 
     todosDados.forEach(d => {
       const row = d._row;
@@ -1042,7 +1043,6 @@ function renderDashboard() {
       }
 
       // Parcela 2: data de recebimento = Data 2ª Parcela (col I)
-      // Se col I vazia, usa Data do Pedido como fallback
       const rec2 = parseBRL(row[COLS.RECEBIDO2]);
       const f2 = normForma(row[COLS.FORMA2]);
       if (rec2 > 0) {
@@ -1050,9 +1050,20 @@ function renderDashboard() {
         if (dtRec2 && dtRec2.getMonth()+1 === mes && dtRec2.getFullYear() === ano) {
           r[f2] = (r[f2] || 0) + rec2;
           r.total += rec2;
+        } else if (f2 === 'Pix') {
+          pixIgnorados.push({
+            comanda: row[COLS.COMANDA],
+            data2raw: row[COLS.DATA2],
+            dataPedido: row[COLS.DATA_PEDIDO],
+            dtRec2: dtRec2 ? `${dtRec2.getMonth()+1}/${dtRec2.getFullYear()}` : 'null',
+            valor: rec2
+          });
         }
       }
     });
+
+    console.table(pixIgnorados);
+    console.log('Pix ignorados total:', pixIgnorados.reduce((s,x)=>s+x.valor,0).toFixed(2));
     return r;
   }
 
