@@ -1097,6 +1097,11 @@ function renderDashboard() {
   const fatDia = calcFatDia(allData);
   const fatMes = calcFaturamento(allData);
 
+  // DEBUG — verifica comanda 11918 em allData
+  const c11918 = allData.filter(d => d._row[COLS.COMANDA] == '11918');
+  console.log('Comanda 11918 encontrada em allData:', c11918.length, 'linhas');
+  c11918.forEach((d,i) => console.log(`  [${i}] DataPedido:${d._row[COLS.DATA_PEDIDO]} Rec:${d._row[COLS.RECEBIDO]} Forma:${d._row[COLS.FORMA]} Rec2:${d._row[COLS.RECEBIDO2]} Data2:${d._row[COLS.DATA2]} Forma2:${d._row[COLS.FORMA2]}`));
+
   // À receber: pedidos do mês com saldo pendente
   const aReceberMes = mesData.reduce((s,d) => s + parseBRL(d._row[COLS.A_RECEBER]), 0);
 
