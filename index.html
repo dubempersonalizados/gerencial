@@ -352,7 +352,7 @@
   <div class="dash-section-title">🏆 Rankings do Mês</div>
   <div class="dash-2col">
     <div>
-      <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:8px;">✏️ Peças por Designer</div>
+      <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:8px;">✏️ Pedidos por Designer</div>
       <div class="rank-list" id="dash-designer-list"></div>
     </div>
     <div>
@@ -992,49 +992,87 @@ function renderDashboard() {
   const ano = parseInt(document.getElementById('dash-ano').value);
   const hoje = new Date();
 
-  // Filtra pedidos do mês/ano selecionado
+  // Helper: verifica se é seção Estamparia
+  const isEstamparia = d => (d._row[COLS.SECAO] || '').trim().toLowerCase() === 'estamparia';
+
+  // Todos pedidos do mês (para faturamento — sem filtro de seção)
   const mesData = allData.filter(d => {
     const dt = parseDataPedido(d._row[COLS.DATA_PEDIDO]);
     return dt && dt.getMonth()+1 === mes && dt.getFullYear() === ano;
   });
 
-  // Pedidos do dia atual
+  // Pedidos do mês filtrados por Estamparia (para produção e rankings)
+  const mesEstamp = mesData.filter(isEstamparia);
+
+  // Pedidos do dia (sem filtro seção, para faturamento do dia)
   const diaData = allData.filter(d => {
     const dt = parseDataPedido(d._row[COLS.DATA_PEDIDO]);
     return dt && dt.getDate() === hoje.getDate() && dt.getMonth() === hoje.getMonth() && dt.getFullYear() === hoje.getFullYear();
   });
 
-  document.getElementById('dash-total-pedidos-badge').textContent = `${mesData.length} pedidos no período`;
+  document.getElementById('dash-total-pedidos-badge').textContent = `${mesEstamp.length} pedidos Estamparia no período`;
 
-  // ── FAT GRID ──
-  function fatPorForma(dados, col) {
+  const fmt = v => 'R$ ' + v.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+  // ── FATURAMENTO ──
+  // Recebido (col F) usa DATA_PEDIDO (col B) para filtrar mês/ano
+  // Recebido 2ª Parcela (col H) usa DATA2 (col I) para filtrar mês/ano
+  function calcFaturamento(todosDados) {
     const r = { Dinheiro: 0, Pix: 0, 'Cartão': 0, total: 0 };
-    dados.forEach(d => {
-      const forma = (d._row[col] || '').trim();
-      const val = parseBRL(d._row[COLS.RECEBIDO]);
-      // distribuição proporcional: usamos valor direto por forma1/forma2
-    });
-    // abordagem direta: soma recebido por forma
-    dados.forEach(d => {
-      const f1 = (d._row[COLS.FORMA] || '').trim();
-      const f2 = (d._row[COLS.FORMA2] || '').trim();
-      const rec = parseBRL(d._row[COLS.RECEBIDO]);
-      const rec2 = parseBRL(d._row[COLS.RECEBIDO2]);
-      if (f1 && r[f1] !== undefined) r[f1] += rec;
-      else if (f1) { r[f1] = (r[f1]||0) + rec; }
-      if (f2 && rec2 > 0) {
-        if (r[f2] !== undefined) r[f2] += rec2;
-        else r[f2] = (r[f2]||0) + rec2;
+
+    todosDados.forEach(d => {
+      const row = d._row;
+
+      // Parcela 1: usa data do pedido (col B), forma (col U/FORMA)
+      const dtPedido = parseDataPedido(row[COLS.DATA_PEDIDO]);
+      if (dtPedido && dtPedido.getMonth()+1 === mes && dtPedido.getFullYear() === ano) {
+        const rec1 = parseBRL(row[COLS.RECEBIDO]);
+        const f1 = (row[COLS.FORMA] || '').trim();
+        if (rec1 > 0) {
+          r[f1] = (r[f1] || 0) + rec1;
+          r.total += rec1;
+        }
       }
-      r.total += rec + rec2;
+
+      // Parcela 2: usa DATA2 (col I), forma2 (col V/FORMA2)
+      const dtParc2 = parseDataPedido(row[COLS.DATA2]);
+      if (dtParc2 && dtParc2.getMonth()+1 === mes && dtParc2.getFullYear() === ano) {
+        const rec2 = parseBRL(row[COLS.RECEBIDO2]);
+        const f2 = (row[COLS.FORMA2] || '').trim();
+        if (rec2 > 0) {
+          r[f2] = (r[f2] || 0) + rec2;
+          r.total += rec2;
+        }
+      }
     });
     return r;
   }
 
-  const fatDia = fatPorForma(diaData);
-  const fatMes = fatPorForma(mesData);
+  function calcFatDia(todosDados) {
+    const r = { Dinheiro: 0, Pix: 0, 'Cartão': 0, total: 0 };
+    todosDados.forEach(d => {
+      const row = d._row;
+      const dtPedido = parseDataPedido(row[COLS.DATA_PEDIDO]);
+      if (dtPedido && dtPedido.getDate() === hoje.getDate() && dtPedido.getMonth() === hoje.getMonth() && dtPedido.getFullYear() === hoje.getFullYear()) {
+        const rec1 = parseBRL(row[COLS.RECEBIDO]);
+        const f1 = (row[COLS.FORMA] || '').trim();
+        if (rec1 > 0) { r[f1] = (r[f1] || 0) + rec1; r.total += rec1; }
+      }
+      const dtParc2 = parseDataPedido(row[COLS.DATA2]);
+      if (dtParc2 && dtParc2.getDate() === hoje.getDate() && dtParc2.getMonth() === hoje.getMonth() && dtParc2.getFullYear() === hoje.getFullYear()) {
+        const rec2 = parseBRL(row[COLS.RECEBIDO2]);
+        const f2 = (row[COLS.FORMA2] || '').trim();
+        if (rec2 > 0) { r[f2] = (r[f2] || 0) + rec2; r.total += rec2; }
+      }
+    });
+    return r;
+  }
+
+  const fatDia = calcFatDia(allData);
+  const fatMes = calcFaturamento(allData);
+
+  // À receber: pedidos do mês com saldo pendente
   const aReceberMes = mesData.reduce((s,d) => s + parseBRL(d._row[COLS.A_RECEBER]), 0);
-  const fmt = v => 'R$ ' + v.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 
   function breakdownHTML(fat) {
     return ['Dinheiro','Pix','Cartão'].map(f =>
@@ -1046,13 +1084,13 @@ function renderDashboard() {
     <div class="kpi-card">
       <div class="kpi-label">Faturamento Hoje</div>
       <div class="kpi-value">${fmt(fatDia.total)}</div>
-      <div class="kpi-sub">${diaData.length} pedido(s)</div>
+      <div class="kpi-sub">${diaData.length} pedido(s) hoje</div>
       <div class="kpi-breakdown">${breakdownHTML(fatDia)}</div>
     </div>
     <div class="kpi-card green">
       <div class="kpi-label">Faturamento do Mês</div>
       <div class="kpi-value">${fmt(fatMes.total)}</div>
-      <div class="kpi-sub">${mesData.length} pedido(s)</div>
+      <div class="kpi-sub">parcelas 1ª e 2ª</div>
       <div class="kpi-breakdown">${breakdownHTML(fatMes)}</div>
     </div>
     <div class="kpi-card yellow">
@@ -1061,81 +1099,80 @@ function renderDashboard() {
       <div class="kpi-sub">saldo pendente</div>
     </div>`;
 
-  // ── PROD GRID ──
-  const pecasMes = mesData.reduce((s,d) => s + (parseInt(d._row[COLS.QUANTIDADE])||0), 0);
+  // ── PRODUÇÃO — apenas Estamparia ──
+  const pecasMes = mesEstamp.reduce((s,d) => s + (parseInt(d._row[COLS.QUANTIDADE])||0), 0);
   document.getElementById('dash-prod-grid').innerHTML = `
     <div class="kpi-card blue">
       <div class="kpi-label">Pedidos no Mês</div>
-      <div class="kpi-value">${mesData.length}</div>
-      <div class="kpi-sub">total de pedidos</div>
+      <div class="kpi-value">${mesEstamp.length}</div>
+      <div class="kpi-sub">seção Estamparia</div>
     </div>
     <div class="kpi-card purple">
       <div class="kpi-label">Peças Produzidas</div>
       <div class="kpi-value">${pecasMes}</div>
-      <div class="kpi-sub">no mês selecionado</div>
+      <div class="kpi-sub">seção Estamparia</div>
     </div>`;
 
-  // ── STATUS GRID ──
-  const noPrazo   = mesData.filter(d => isStatusNoPrazo(d._row));
-  const atrasado  = mesData.filter(d => isStatusAtrasado(d._row));
-  const naLoja    = mesData.filter(d => /finaliz|conclu|loja|na loja/.test((d._row[COLS.STATUS]||'').toLowerCase()));
-  const entregue  = mesData.filter(d => /entregue/.test((d._row[COLS.STATUS]||'').toLowerCase()));
-  const pcNoPrazo  = mesData.filter(d => isStatusNoPrazo(d._row)).reduce((s,d)=>s+(parseInt(d._row[COLS.QUANTIDADE])||0),0);
-  const pcAtrasado = mesData.filter(d => isStatusAtrasado(d._row)).reduce((s,d)=>s+(parseInt(d._row[COLS.QUANTIDADE])||0),0);
-  const pcNaLoja   = naLoja.reduce((s,d)=>s+(parseInt(d._row[COLS.QUANTIDADE])||0),0);
-  const pcEntregue = entregue.reduce((s,d)=>s+(parseInt(d._row[COLS.QUANTIDADE])||0),0);
+  // ── STATUS — base mesData (todos) ──
+  const noPrazo  = mesData.filter(d => isStatusNoPrazo(d._row));
+  const atrasado = mesData.filter(d => isStatusAtrasado(d._row));
+  const naLoja   = mesData.filter(d => /finaliz|conclu|loja|na loja/.test((d._row[COLS.STATUS]||'').toLowerCase()));
+  const entregue = mesData.filter(d => /entregue/.test((d._row[COLS.STATUS]||'').toLowerCase()));
+  const pc = arr => arr.reduce((s,d)=>s+(parseInt(d._row[COLS.QUANTIDADE])||0),0);
 
   document.getElementById('dash-status-grid').innerHTML = `
     <div class="status-dash-card">
       <div class="status-dash-icon">✅</div>
       <div class="status-dash-label">No Prazo</div>
       <div class="status-dash-val" style="color:var(--success)">${noPrazo.length}</div>
-      <div class="status-dash-sub">${pcNoPrazo} peças</div>
+      <div class="status-dash-sub">${pc(noPrazo)} peças</div>
     </div>
     <div class="status-dash-card">
       <div class="status-dash-icon">🔴</div>
       <div class="status-dash-label">Atrasado</div>
       <div class="status-dash-val" style="color:var(--danger)">${atrasado.length}</div>
-      <div class="status-dash-sub">${pcAtrasado} peças</div>
+      <div class="status-dash-sub">${pc(atrasado)} peças</div>
     </div>
     <div class="status-dash-card">
       <div class="status-dash-icon">🏁</div>
       <div class="status-dash-label">Na Loja</div>
       <div class="status-dash-val" style="color:var(--info)">${naLoja.length}</div>
-      <div class="status-dash-sub">${pcNaLoja} peças</div>
+      <div class="status-dash-sub">${pc(naLoja)} peças</div>
     </div>
     <div class="status-dash-card">
       <div class="status-dash-icon">📦</div>
       <div class="status-dash-label">Entregue</div>
       <div class="status-dash-val" style="color:#a855f7">${entregue.length}</div>
-      <div class="status-dash-sub">${pcEntregue} peças</div>
+      <div class="status-dash-sub">${pc(entregue)} peças</div>
     </div>`;
 
   // ── RANK BUILDER ──
-  function buildRank(data, colIdx, listId, color) {
+  // countMode: 'pecas' = soma quantidade, 'pedidos' = conta linhas
+  function buildRank(data, colIdx, listId, color, countMode) {
     const map = {};
     data.forEach(d => {
       const key = (d._row[colIdx] || '—').trim() || '—';
-      const qtd = parseInt(d._row[COLS.QUANTIDADE]) || 0;
-      map[key] = (map[key] || 0) + qtd;
+      const val = countMode === 'pedidos' ? 1 : (parseInt(d._row[COLS.QUANTIDADE]) || 0);
+      map[key] = (map[key] || 0) + val;
     });
     const sorted = Object.entries(map).sort((a,b) => b[1]-a[1]);
     const max = sorted[0] ? sorted[0][1] : 1;
     const el = document.getElementById(listId);
+    const label = countMode === 'pedidos' ? 'ped.' : 'pç.';
     if (!sorted.length) { el.innerHTML = '<div class="rank-item"><span style="color:var(--muted);font-size:12px;padding:4px">Sem dados no período</span></div>'; return; }
     el.innerHTML = sorted.map(([name, val], i) => `
       <div class="rank-item">
         <div class="rank-pos">${i+1}</div>
         <div class="rank-name">${name}</div>
         <div class="rank-bar-wrap"><div class="rank-bar" style="width:${Math.round(val/max*100)}%;background:${color}"></div></div>
-        <div class="rank-val">${val}</div>
+        <div class="rank-val">${val} ${label}</div>
       </div>`).join('');
   }
 
-  buildRank(mesData, COLS.DESIGNER, 'dash-designer-list', 'var(--accent)');
-  buildRank(mesData, COLS.COSTURA,  'dash-costura-list',  'var(--success)');
-  buildRank(mesData, COLS.TECIDO,   'dash-tecido-list',   'var(--info)');
-  buildRank(mesData, COLS.GOLA,     'dash-gola-list',     '#a855f7');
+  buildRank(mesEstamp, COLS.DESIGNER, 'dash-designer-list', 'var(--accent)',  'pedidos'); // pedidos por designer
+  buildRank(mesEstamp, COLS.COSTURA,  'dash-costura-list',  'var(--success)', 'pecas');   // peças por costureiro
+  buildRank(mesEstamp, COLS.TECIDO,   'dash-tecido-list',   'var(--info)',    'pecas');   // peças por tecido
+  buildRank(mesEstamp, COLS.GOLA,     'dash-gola-list',     '#a855f7',        'pecas');   // peças por gola
 }
 var autoRefreshInterval = 5 * 60 * 1000; // 5 minutos em ms
 var countdownTimer = null;
