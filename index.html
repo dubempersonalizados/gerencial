@@ -1028,44 +1028,30 @@ function renderDashboard() {
 
   function calcFaturamento(todosDados) {
     const r = { Dinheiro: 0, Pix: 0, 'Cartão': 0, total: 0 };
-    const pixIgnorados = [];
 
     todosDados.forEach(d => {
       const row = d._row;
 
-      // Parcela 1: usa data do pedido (col B), forma (col U/FORMA)
+      // Parcela 1: usa data do pedido (col B), forma (col U)
       const dtPedido = parseDataPedido(row[COLS.DATA_PEDIDO]);
       const f1 = normForma(row[COLS.FORMA]);
       const rec1 = parseBRL(row[COLS.RECEBIDO]);
-
-      if (dtPedido && dtPedido.getMonth()+1 === mes && dtPedido.getFullYear() === ano) {
-        if (rec1 > 0) {
-          r[f1] = (r[f1] || 0) + rec1;
-          r.total += rec1;
-        }
-      } else if (f1 === 'Pix' && rec1 > 0) {
-        pixIgnorados.push({comanda: row[COLS.COMANDA], motivo: 'parcela1 fora do mês', dataPedido: row[COLS.DATA_PEDIDO], rec: rec1});
+      if (dtPedido && dtPedido.getMonth()+1 === mes && dtPedido.getFullYear() === ano && rec1 > 0) {
+        r[f1] = (r[f1] || 0) + rec1;
+        r.total += rec1;
       }
 
-      // Parcela 2: usa DATA2 (col I), forma2 (col V/FORMA2)
-      const dtParc2 = parseDataPedido(row[COLS.DATA2]);
-      const f2 = normForma(row[COLS.FORMA2]);
+      // Parcela 2: usa DATA2 (col I) se preenchida, senão usa DATA_PEDIDO como fallback
       const rec2 = parseBRL(row[COLS.RECEBIDO2]);
-
-      if (dtParc2 && dtParc2.getMonth()+1 === mes && dtParc2.getFullYear() === ano) {
-        if (rec2 > 0) {
+      const f2 = normForma(row[COLS.FORMA2]);
+      if (rec2 > 0) {
+        const dtParc2 = parseDataPedido(row[COLS.DATA2]) || dtPedido;
+        if (dtParc2 && dtParc2.getMonth()+1 === mes && dtParc2.getFullYear() === ano) {
           r[f2] = (r[f2] || 0) + rec2;
           r.total += rec2;
         }
-      } else if (f2 === 'Pix' && rec2 > 0) {
-        pixIgnorados.push({comanda: row[COLS.COMANDA], motivo: 'parcela2 fora do mês ou sem data', data2: row[COLS.DATA2], rec: rec2});
       }
     });
-
-    if (pixIgnorados.length > 0) {
-      console.warn('⚠️ Pix NÃO contabilizados no mês:', pixIgnorados);
-    }
-    console.log('✅ Pix contabilizado no mês: R$', r.Pix.toFixed(2));
     return r;
   }
 
