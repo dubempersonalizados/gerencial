@@ -1063,8 +1063,9 @@ function renderDashboard() {
       const rec2 = parseBRL(row[COLS.RECEBIDO2]);
       const f2 = normForma(row[COLS.FORMA2]);
       if (rec2 > 0) {
-        const dtRec2 = parseDataPedido(row[COLS.DATA2]) || dtPedido;
-        if (row[COLS.COMANDA] == '11918') console.log('11918 P2 dtRec2:', dtRec2, 'mes:', dtRec2 && dtRec2.getMonth()+1, 'ano:', dtRec2 && dtRec2.getFullYear(), 'filtro mes:', mes, 'filtro ano:', ano, 'entra?', dtRec2 && dtRec2.getMonth()+1 === mes && dtRec2.getFullYear() === ano);
+        const dtRec2raw = parseDataPedido(row[COLS.DATA2]);
+        const dtRec2 = dtRec2raw || dtPedido;
+        if (row[COLS.COMANDA] == '11918') console.log('11918 P2 DATA2 raw:', row[COLS.DATA2], '| parseDataPedido result:', dtRec2raw, '| dtPedido:', dtPedido, '| dtRec2 final:', dtRec2, 'mes:', dtRec2 && dtRec2.getMonth()+1, 'ano:', dtRec2 && dtRec2.getFullYear(), 'filtro mes:', mes, 'filtro ano:', ano, 'entra?', dtRec2 && dtRec2.getMonth()+1 === mes && dtRec2.getFullYear() === ano);
         if (dtRec2 && dtRec2.getMonth()+1 === mes && dtRec2.getFullYear() === ano) {
           r[f2] = (r[f2] || 0) + rec2;
           r.total += rec2;
