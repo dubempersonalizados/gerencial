@@ -25,9 +25,56 @@
   body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
 
   /* HEADER */
-  .header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 16px 28px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+  .header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 16px 28px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; flex-wrap: wrap; gap: 10px; }
   .logo { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: var(--accent); letter-spacing: -0.5px; }
   .logo span { color: var(--text); font-weight: 400; }
+
+  /* NAV TABS */
+  .nav-tabs { display: flex; gap: 4px; background: var(--bg); border-radius: 10px; padding: 4px; }
+  .nav-tab { padding: 7px 20px; border-radius: 7px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; background: transparent; color: var(--muted); transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
+  .nav-tab.active { background: var(--accent); color: #fff; }
+  .nav-tab:hover:not(.active) { color: var(--text); }
+
+  /* DASHBOARD */
+  .dash-wrap { display: none; }
+  .dash-wrap.visible { display: block; }
+  .gerencial-wrap { display: block; }
+  .gerencial-wrap.hidden { display: none; }
+  .dash-controls { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+  .dash-controls select { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 8px 14px; border-radius: 8px; font-size: 13px; font-family: 'DM Sans', sans-serif; cursor: pointer; outline: none; }
+  .dash-controls select:focus { border-color: var(--accent); }
+  .dash-section-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin: 28px 0 12px; }
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; }
+  .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px 16px; position: relative; overflow: hidden; }
+  .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--accent); border-radius: 14px 14px 0 0; }
+  .kpi-card.green::before { background: var(--success); }
+  .kpi-card.blue::before { background: var(--info); }
+  .kpi-card.purple::before { background: #a855f7; }
+  .kpi-card.red::before { background: var(--danger); }
+  .kpi-card.yellow::before { background: var(--warning); }
+  .kpi-label { font-size: 11px; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .kpi-value { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; color: var(--text); line-height: 1; }
+  .kpi-sub { font-size: 11px; color: var(--muted); margin-top: 6px; }
+  .kpi-breakdown { margin-top: 10px; display: flex; flex-direction: column; gap: 4px; }
+  .kpi-breakdown-item { display: flex; justify-content: space-between; font-size: 11px; }
+  .kpi-breakdown-item span:first-child { color: var(--muted); }
+  .kpi-breakdown-item span:last-child { color: var(--text); font-weight: 600; }
+  .rank-list { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+  .rank-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+  .rank-item:last-child { border-bottom: none; }
+  .rank-pos { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 800; color: var(--muted); width: 22px; text-align: center; }
+  .rank-name { flex: 1; font-size: 13px; font-weight: 500; }
+  .rank-bar-wrap { flex: 2; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .rank-bar { height: 100%; border-radius: 3px; background: var(--accent); transition: width 0.4s ease; }
+  .rank-val { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--text); width: 50px; text-align: right; }
+  .status-dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+  .status-dash-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; text-align: center; }
+  .status-dash-icon { font-size: 24px; margin-bottom: 6px; }
+  .status-dash-label { font-size: 11px; color: var(--muted); font-weight: 500; margin-bottom: 6px; }
+  .status-dash-val { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; }
+  .status-dash-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .dash-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media(max-width: 700px) { .dash-2col { grid-template-columns: 1fr; } .kpi-grid { grid-template-columns: 1fr 1fr; } }
   .header-actions { display: flex; gap: 10px; align-items: center; }
   .btn { padding: 8px 18px; border-radius: 8px; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: all 0.18s; }
   .btn-primary { background: var(--accent); color: #fff; }
@@ -173,13 +220,18 @@
 
 <div class="header">
   <div class="logo">Gerencial <span>Dubem</span></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" id="tab-gerencial" onclick="switchTab('gerencial')">📋 Pedidos</button>
+    <button class="nav-tab" id="tab-dashboard" onclick="switchTab('dashboard')">📊 Dashboard</button>
+  </div>
   <div class="header-actions">
     <button class="btn btn-outline" onclick="loadData()">↺ Atualizar</button>
     <button class="btn btn-outline" onclick="configScript()" id="btn-config" title="Configurar sincronização com Google Sheets">⚙️ Sincronizar</button>
-    <button class="btn btn-primary" onclick="exportPDF()">⬇ Exportar PDF</button>
+    <button class="btn btn-primary" id="btn-export-pdf" onclick="exportPDF()">⬇ Exportar PDF</button>
   </div>
 </div>
 
+<div class="gerencial-wrap" id="gerencial-wrap">
 <div class="main">
   <!-- COUNTERS -->
   <div class="counters">
@@ -272,6 +324,55 @@
     </div>
   </div>
 </div>
+</div><!-- end gerencial-wrap -->
+
+<!-- DASHBOARD -->
+<div class="dash-wrap" id="dash-wrap">
+<div class="main">
+  <div class="dash-controls">
+    <span style="font-size:13px;color:var(--muted);font-weight:500;">Período:</span>
+    <select id="dash-mes" onchange="renderDashboard()"></select>
+    <select id="dash-ano" onchange="renderDashboard()"></select>
+    <span id="dash-total-pedidos-badge" style="background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:4px 14px;font-size:12px;color:var(--muted);"></span>
+  </div>
+
+  <!-- FATURAMENTO -->
+  <div class="dash-section-title">💰 Faturamento</div>
+  <div class="kpi-grid" id="dash-fat-grid"></div>
+
+  <!-- PRODUÇÃO -->
+  <div class="dash-section-title">📦 Produção do Mês</div>
+  <div class="kpi-grid" id="dash-prod-grid"></div>
+
+  <!-- STATUS -->
+  <div class="dash-section-title">📌 Status dos Pedidos</div>
+  <div class="status-dash-grid" id="dash-status-grid"></div>
+
+  <!-- RANKINGS -->
+  <div class="dash-section-title">🏆 Rankings do Mês</div>
+  <div class="dash-2col">
+    <div>
+      <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:8px;">✏️ Peças por Designer</div>
+      <div class="rank-list" id="dash-designer-list"></div>
+    </div>
+    <div>
+      <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:8px;">🧵 Peças por Costureiro</div>
+      <div class="rank-list" id="dash-costura-list"></div>
+    </div>
+  </div>
+
+  <div class="dash-2col" style="margin-top:16px;">
+    <div>
+      <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:8px;">🧶 Peças por Tipo de Tecido</div>
+      <div class="rank-list" id="dash-tecido-list"></div>
+    </div>
+    <div>
+      <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:8px;">👕 Peças por Tipo de Gola</div>
+      <div class="rank-list" id="dash-gola-list"></div>
+    </div>
+  </div>
+</div>
+</div><!-- end dash-wrap -->
 
 <!-- CONFIRM MODAL -->
 <div class="modal-overlay" id="confirm-modal">
@@ -819,8 +920,223 @@ Object.defineProperty(window, 'APPS_SCRIPT_URL', {
 });
 
 loadData();
+initDashControls();
 
-// ── Auto-atualização a cada 5 minutos ──
+// ── DASHBOARD ──────────────────────────────────────────────
+
+function switchTab(tab) {
+  const isGerencial = tab === 'gerencial';
+  document.getElementById('gerencial-wrap').classList.toggle('hidden', !isGerencial);
+  document.getElementById('dash-wrap').classList.toggle('visible', !isGerencial);
+  document.getElementById('tab-gerencial').classList.toggle('active', isGerencial);
+  document.getElementById('tab-dashboard').classList.toggle('active', !isGerencial);
+  document.getElementById('btn-export-pdf').style.display = isGerencial ? '' : 'none';
+  if (!isGerencial) renderDashboard();
+}
+
+function initDashControls() {
+  const mesSelect = document.getElementById('dash-mes');
+  const anoSelect = document.getElementById('dash-ano');
+  const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  meses.forEach((m, i) => {
+    const opt = document.createElement('option');
+    opt.value = i + 1;
+    opt.textContent = m;
+    mesSelect.appendChild(opt);
+  });
+  const now = new Date();
+  mesSelect.value = now.getMonth() + 1;
+  for (let y = now.getFullYear(); y >= now.getFullYear() - 3; y--) {
+    const opt = document.createElement('option');
+    opt.value = y; opt.textContent = y;
+    anoSelect.appendChild(opt);
+  }
+  anoSelect.value = now.getFullYear();
+}
+
+function parseBRL(val) {
+  if (!val) return 0;
+  const s = String(val).replace(/[^\d,\.]/g, '').replace(',', '.');
+  return parseFloat(s) || 0;
+}
+
+function parseDataPedido(str) {
+  if (!str) return null;
+  // suporta DD/MM/YYYY e YYYY-MM-DD
+  const p1 = str.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+  if (p1) return new Date(+p1[3], +p1[2]-1, +p1[1]);
+  const p2 = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (p2) return new Date(+p2[1], +p2[2]-1, +p2[3]);
+  return null;
+}
+
+function isStatusAtrasado(row) {
+  const st = (row[COLS.STATUS] || '').toLowerCase();
+  if (/entregue|finaliz|conclu|loja|na loja/.test(st)) return false;
+  const prev = row[COLS.PREV_ENTREGA];
+  if (!prev) return false;
+  const d = parseDataPedido(prev);
+  return d && d < new Date();
+}
+function isStatusNoPrazo(row) {
+  const st = (row[COLS.STATUS] || '').toLowerCase();
+  if (/entregue|finaliz|conclu|loja|na loja/.test(st)) return false;
+  const prev = row[COLS.PREV_ENTREGA];
+  if (!prev) return true;
+  const d = parseDataPedido(prev);
+  return !d || d >= new Date();
+}
+
+function renderDashboard() {
+  const mes = parseInt(document.getElementById('dash-mes').value);
+  const ano = parseInt(document.getElementById('dash-ano').value);
+  const hoje = new Date();
+
+  // Filtra pedidos do mês/ano selecionado
+  const mesData = allData.filter(d => {
+    const dt = parseDataPedido(d._row[COLS.DATA_PEDIDO]);
+    return dt && dt.getMonth()+1 === mes && dt.getFullYear() === ano;
+  });
+
+  // Pedidos do dia atual
+  const diaData = allData.filter(d => {
+    const dt = parseDataPedido(d._row[COLS.DATA_PEDIDO]);
+    return dt && dt.getDate() === hoje.getDate() && dt.getMonth() === hoje.getMonth() && dt.getFullYear() === hoje.getFullYear();
+  });
+
+  document.getElementById('dash-total-pedidos-badge').textContent = `${mesData.length} pedidos no período`;
+
+  // ── FAT GRID ──
+  function fatPorForma(dados, col) {
+    const r = { Dinheiro: 0, Pix: 0, 'Cartão': 0, total: 0 };
+    dados.forEach(d => {
+      const forma = (d._row[col] || '').trim();
+      const val = parseBRL(d._row[COLS.RECEBIDO]);
+      // distribuição proporcional: usamos valor direto por forma1/forma2
+    });
+    // abordagem direta: soma recebido por forma
+    dados.forEach(d => {
+      const f1 = (d._row[COLS.FORMA] || '').trim();
+      const f2 = (d._row[COLS.FORMA2] || '').trim();
+      const rec = parseBRL(d._row[COLS.RECEBIDO]);
+      const rec2 = parseBRL(d._row[COLS.RECEBIDO2]);
+      if (f1 && r[f1] !== undefined) r[f1] += rec;
+      else if (f1) { r[f1] = (r[f1]||0) + rec; }
+      if (f2 && rec2 > 0) {
+        if (r[f2] !== undefined) r[f2] += rec2;
+        else r[f2] = (r[f2]||0) + rec2;
+      }
+      r.total += rec + rec2;
+    });
+    return r;
+  }
+
+  const fatDia = fatPorForma(diaData);
+  const fatMes = fatPorForma(mesData);
+  const aReceberMes = mesData.reduce((s,d) => s + parseBRL(d._row[COLS.A_RECEBER]), 0);
+  const fmt = v => 'R$ ' + v.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+  function breakdownHTML(fat) {
+    return ['Dinheiro','Pix','Cartão'].map(f =>
+      `<div class="kpi-breakdown-item"><span>${f}</span><span>${fmt(fat[f]||0)}</span></div>`
+    ).join('');
+  }
+
+  document.getElementById('dash-fat-grid').innerHTML = `
+    <div class="kpi-card">
+      <div class="kpi-label">Faturamento Hoje</div>
+      <div class="kpi-value">${fmt(fatDia.total)}</div>
+      <div class="kpi-sub">${diaData.length} pedido(s)</div>
+      <div class="kpi-breakdown">${breakdownHTML(fatDia)}</div>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-label">Faturamento do Mês</div>
+      <div class="kpi-value">${fmt(fatMes.total)}</div>
+      <div class="kpi-sub">${mesData.length} pedido(s)</div>
+      <div class="kpi-breakdown">${breakdownHTML(fatMes)}</div>
+    </div>
+    <div class="kpi-card yellow">
+      <div class="kpi-label">À Receber no Mês</div>
+      <div class="kpi-value">${fmt(aReceberMes)}</div>
+      <div class="kpi-sub">saldo pendente</div>
+    </div>`;
+
+  // ── PROD GRID ──
+  const pecasMes = mesData.reduce((s,d) => s + (parseInt(d._row[COLS.QUANTIDADE])||0), 0);
+  document.getElementById('dash-prod-grid').innerHTML = `
+    <div class="kpi-card blue">
+      <div class="kpi-label">Pedidos no Mês</div>
+      <div class="kpi-value">${mesData.length}</div>
+      <div class="kpi-sub">total de pedidos</div>
+    </div>
+    <div class="kpi-card purple">
+      <div class="kpi-label">Peças Produzidas</div>
+      <div class="kpi-value">${pecasMes}</div>
+      <div class="kpi-sub">no mês selecionado</div>
+    </div>`;
+
+  // ── STATUS GRID ──
+  const noPrazo   = mesData.filter(d => isStatusNoPrazo(d._row));
+  const atrasado  = mesData.filter(d => isStatusAtrasado(d._row));
+  const naLoja    = mesData.filter(d => /finaliz|conclu|loja|na loja/.test((d._row[COLS.STATUS]||'').toLowerCase()));
+  const entregue  = mesData.filter(d => /entregue/.test((d._row[COLS.STATUS]||'').toLowerCase()));
+  const pcNoPrazo  = mesData.filter(d => isStatusNoPrazo(d._row)).reduce((s,d)=>s+(parseInt(d._row[COLS.QUANTIDADE])||0),0);
+  const pcAtrasado = mesData.filter(d => isStatusAtrasado(d._row)).reduce((s,d)=>s+(parseInt(d._row[COLS.QUANTIDADE])||0),0);
+  const pcNaLoja   = naLoja.reduce((s,d)=>s+(parseInt(d._row[COLS.QUANTIDADE])||0),0);
+  const pcEntregue = entregue.reduce((s,d)=>s+(parseInt(d._row[COLS.QUANTIDADE])||0),0);
+
+  document.getElementById('dash-status-grid').innerHTML = `
+    <div class="status-dash-card">
+      <div class="status-dash-icon">✅</div>
+      <div class="status-dash-label">No Prazo</div>
+      <div class="status-dash-val" style="color:var(--success)">${noPrazo.length}</div>
+      <div class="status-dash-sub">${pcNoPrazo} peças</div>
+    </div>
+    <div class="status-dash-card">
+      <div class="status-dash-icon">🔴</div>
+      <div class="status-dash-label">Atrasado</div>
+      <div class="status-dash-val" style="color:var(--danger)">${atrasado.length}</div>
+      <div class="status-dash-sub">${pcAtrasado} peças</div>
+    </div>
+    <div class="status-dash-card">
+      <div class="status-dash-icon">🏁</div>
+      <div class="status-dash-label">Na Loja</div>
+      <div class="status-dash-val" style="color:var(--info)">${naLoja.length}</div>
+      <div class="status-dash-sub">${pcNaLoja} peças</div>
+    </div>
+    <div class="status-dash-card">
+      <div class="status-dash-icon">📦</div>
+      <div class="status-dash-label">Entregue</div>
+      <div class="status-dash-val" style="color:#a855f7">${entregue.length}</div>
+      <div class="status-dash-sub">${pcEntregue} peças</div>
+    </div>`;
+
+  // ── RANK BUILDER ──
+  function buildRank(data, colIdx, listId, color) {
+    const map = {};
+    data.forEach(d => {
+      const key = (d._row[colIdx] || '—').trim() || '—';
+      const qtd = parseInt(d._row[COLS.QUANTIDADE]) || 0;
+      map[key] = (map[key] || 0) + qtd;
+    });
+    const sorted = Object.entries(map).sort((a,b) => b[1]-a[1]);
+    const max = sorted[0] ? sorted[0][1] : 1;
+    const el = document.getElementById(listId);
+    if (!sorted.length) { el.innerHTML = '<div class="rank-item"><span style="color:var(--muted);font-size:12px;padding:4px">Sem dados no período</span></div>'; return; }
+    el.innerHTML = sorted.map(([name, val], i) => `
+      <div class="rank-item">
+        <div class="rank-pos">${i+1}</div>
+        <div class="rank-name">${name}</div>
+        <div class="rank-bar-wrap"><div class="rank-bar" style="width:${Math.round(val/max*100)}%;background:${color}"></div></div>
+        <div class="rank-val">${val}</div>
+      </div>`).join('');
+  }
+
+  buildRank(mesData, COLS.DESIGNER, 'dash-designer-list', 'var(--accent)');
+  buildRank(mesData, COLS.COSTURA,  'dash-costura-list',  'var(--success)');
+  buildRank(mesData, COLS.TECIDO,   'dash-tecido-list',   'var(--info)');
+  buildRank(mesData, COLS.GOLA,     'dash-gola-list',     '#a855f7');
+}
 var autoRefreshInterval = 5 * 60 * 1000; // 5 minutos em ms
 var countdownTimer = null;
 var refreshTimer = null;
