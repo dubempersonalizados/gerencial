@@ -1033,6 +1033,23 @@ function renderDashboard() {
       const row = d._row;
       const dtPedido = parseDataPedido(row[COLS.DATA_PEDIDO]);
 
+      // DEBUG comanda 11918
+      if (row[COLS.COMANDA] == '11918') {
+        console.log('--- COMANDA 11918 ---');
+        console.log('DATA_PEDIDO raw:', row[COLS.DATA_PEDIDO]);
+        console.log('RECEBIDO raw:', row[COLS.RECEBIDO]);
+        console.log('FORMA raw:', row[COLS.FORMA]);
+        console.log('RECEBIDO2 raw:', row[COLS.RECEBIDO2]);
+        console.log('DATA2 raw:', row[COLS.DATA2]);
+        console.log('FORMA2 raw:', row[COLS.FORMA2]);
+        console.log('dtPedido parsed:', dtPedido);
+        console.log('dtParc2 parsed:', parseDataPedido(row[COLS.DATA2]));
+        console.log('normForma FORMA:', normForma(row[COLS.FORMA]));
+        console.log('normForma FORMA2:', normForma(row[COLS.FORMA2]));
+        console.log('parseBRL RECEBIDO:', parseBRL(row[COLS.RECEBIDO]));
+        console.log('parseBRL RECEBIDO2:', parseBRL(row[COLS.RECEBIDO2]));
+      }
+
       // Parcela 1: data de recebimento = Data do Pedido (col B)
       const rec1 = parseBRL(row[COLS.RECEBIDO]);
       const f1 = normForma(row[COLS.FORMA]);
