@@ -1033,23 +1033,6 @@ function renderDashboard() {
       const row = d._row;
       const dtPedido = parseDataPedido(row[COLS.DATA_PEDIDO]);
 
-      // DEBUG comanda 11918
-      if (row[COLS.COMANDA] == '11918') {
-        console.log('--- COMANDA 11918 ---');
-        console.log('DATA_PEDIDO raw:', row[COLS.DATA_PEDIDO]);
-        console.log('RECEBIDO raw:', row[COLS.RECEBIDO]);
-        console.log('FORMA raw:', row[COLS.FORMA]);
-        console.log('RECEBIDO2 raw:', row[COLS.RECEBIDO2]);
-        console.log('DATA2 raw:', row[COLS.DATA2]);
-        console.log('FORMA2 raw:', row[COLS.FORMA2]);
-        console.log('dtPedido parsed:', dtPedido);
-        console.log('dtParc2 parsed:', parseDataPedido(row[COLS.DATA2]));
-        console.log('normForma FORMA:', normForma(row[COLS.FORMA]));
-        console.log('normForma FORMA2:', normForma(row[COLS.FORMA2]));
-        console.log('parseBRL RECEBIDO:', parseBRL(row[COLS.RECEBIDO]));
-        console.log('parseBRL RECEBIDO2:', parseBRL(row[COLS.RECEBIDO2]));
-      }
-
       // Parcela 1: data de recebimento = Data do Pedido (col B)
       const rec1 = parseBRL(row[COLS.RECEBIDO]);
       const f1 = normForma(row[COLS.FORMA]);
@@ -1063,9 +1046,7 @@ function renderDashboard() {
       const rec2 = parseBRL(row[COLS.RECEBIDO2]);
       const f2 = normForma(row[COLS.FORMA2]);
       if (rec2 > 0) {
-        const dtRec2raw = parseDataPedido(row[COLS.DATA2]);
-        const dtRec2 = dtRec2raw || dtPedido;
-        if (row[COLS.COMANDA] == '11918') console.log('11918 P2 DATA2 raw:', row[COLS.DATA2], '| parseDataPedido result:', dtRec2raw, '| dtPedido:', dtPedido, '| dtRec2 final:', dtRec2, 'mes:', dtRec2 && dtRec2.getMonth()+1, 'ano:', dtRec2 && dtRec2.getFullYear(), 'filtro mes:', mes, 'filtro ano:', ano, 'entra?', dtRec2 && dtRec2.getMonth()+1 === mes && dtRec2.getFullYear() === ano);
+        const dtRec2 = parseDataPedido(row[COLS.DATA2]) || dtPedido;
         if (dtRec2 && dtRec2.getMonth()+1 === mes && dtRec2.getFullYear() === ano) {
           r[f2] = (r[f2] || 0) + rec2;
           r.total += rec2;
@@ -1097,11 +1078,6 @@ function renderDashboard() {
 
   const fatDia = calcFatDia(allData);
   const fatMes = calcFaturamento(allData);
-
-  // DEBUG — verifica comanda 11918 em allData
-  const c11918 = allData.filter(d => d._row[COLS.COMANDA] == '11918');
-  console.log('Comanda 11918 encontrada em allData:', c11918.length, 'linhas');
-  c11918.forEach((d,i) => console.log(`  [${i}] DataPedido:${d._row[COLS.DATA_PEDIDO]} Rec:${d._row[COLS.RECEBIDO]} Forma:${d._row[COLS.FORMA]} Rec2:${d._row[COLS.RECEBIDO2]} Data2:${d._row[COLS.DATA2]} Forma2:${d._row[COLS.FORMA2]}`));
 
   // À receber: pedidos do mês com saldo pendente
   const aReceberMes = mesData.reduce((s,d) => s + parseBRL(d._row[COLS.A_RECEBER]), 0);
