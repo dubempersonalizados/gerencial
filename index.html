@@ -1028,20 +1028,12 @@ function renderDashboard() {
 
   function calcFaturamento(todosDados) {
     const r = { Dinheiro: 0, Pix: 0, 'Cartão': 0, total: 0 };
-    const missing = ['15273','15133','14327','15409','15336','14919','15909','14339'];
 
     todosDados.forEach(d => {
       const row = d._row;
       const dtPedido = parseDataPedido(row[COLS.DATA_PEDIDO]);
 
-      // Debug comandas faltantes
-      if (missing.includes(String(row[COLS.COMANDA]).trim())) {
-        const dtP = parseDataPedido(row[COLS.DATA_PEDIDO]);
-        const dtD = parseDataPedido(row[COLS.DATA2]);
-        console.log(`CMD:${row[COLS.COMANDA]} | DtPedido:${row[COLS.DATA_PEDIDO]}(${dtP?dtP.getMonth()+1+'/'+dtP.getFullYear():'null'}) | Rec1:${row[COLS.RECEBIDO]} Forma1:${row[COLS.FORMA]} | Rec2:${row[COLS.RECEBIDO2]} Data2:${row[COLS.DATA2]}(${dtD?dtD.getMonth()+1+'/'+dtD.getFullYear():'null'}) Forma2:${row[COLS.FORMA2]}`);
-      }
-
-      // Parcela 1
+      // Parcela 1: data de recebimento = Data do Pedido (col B)
       const rec1 = parseBRL(row[COLS.RECEBIDO]);
       const f1 = normForma(row[COLS.FORMA]);
       if (rec1 > 0 && dtPedido && dtPedido.getMonth()+1 === mes && dtPedido.getFullYear() === ano) {
@@ -1049,13 +1041,10 @@ function renderDashboard() {
         r.total += rec1;
       }
 
-      // Parcela 2
+      // Parcela 2: data de recebimento = Data 2ª Parcela (col I)
+      // Se col I vazia, usa Data do Pedido como fallback
       const rec2 = parseBRL(row[COLS.RECEBIDO2]);
       const f2 = normForma(row[COLS.FORMA2]);
-      if (missing.includes(String(row[COLS.COMANDA]).trim())) {
-        const dtRec2check = parseDataPedido(row[COLS.DATA2]) || dtPedido;
-        console.log(`CMD:${row[COLS.COMANDA]} P2 | rec2:${rec2} | f2:"${f2}" | dtRec2:${dtRec2check ? dtRec2check.getMonth()+1+'/'+dtRec2check.getFullYear() : 'null'} | entra:${rec2 > 0 && dtRec2check && dtRec2check.getMonth()+1 === mes && dtRec2check.getFullYear() === ano}`);
-      }
       if (rec2 > 0) {
         const dtRec2 = parseDataPedido(row[COLS.DATA2]) || dtPedido;
         if (dtRec2 && dtRec2.getMonth()+1 === mes && dtRec2.getFullYear() === ano) {
