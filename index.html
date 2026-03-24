@@ -1052,6 +1052,10 @@ function renderDashboard() {
       // Parcela 2
       const rec2 = parseBRL(row[COLS.RECEBIDO2]);
       const f2 = normForma(row[COLS.FORMA2]);
+      if (missing.includes(String(row[COLS.COMANDA]).trim())) {
+        const dtRec2check = parseDataPedido(row[COLS.DATA2]) || dtPedido;
+        console.log(`CMD:${row[COLS.COMANDA]} P2 | rec2:${rec2} | f2:"${f2}" | dtRec2:${dtRec2check ? dtRec2check.getMonth()+1+'/'+dtRec2check.getFullYear() : 'null'} | entra:${rec2 > 0 && dtRec2check && dtRec2check.getMonth()+1 === mes && dtRec2check.getFullYear() === ano}`);
+      }
       if (rec2 > 0) {
         const dtRec2 = parseDataPedido(row[COLS.DATA2]) || dtPedido;
         if (dtRec2 && dtRec2.getMonth()+1 === mes && dtRec2.getFullYear() === ano) {
