@@ -956,7 +956,13 @@ function initDashControls() {
 
 function parseBRL(val) {
   if (!val) return 0;
-  const s = String(val).replace(/[^\d,\.]/g, '').replace(',', '.');
+  let s = String(val).trim();
+  // Remove símbolo R$, espaços e caracteres não numéricos exceto vírgula e ponto
+  s = s.replace(/R\$\s*/g, '').trim();
+  // Formato brasileiro: 1.234,56 → remover pontos de milhar, trocar vírgula por ponto
+  if (s.includes(',')) {
+    s = s.replace(/\./g, '').replace(',', '.');
+  }
   return parseFloat(s) || 0;
 }
 
