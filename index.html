@@ -1028,21 +1028,22 @@ function renderDashboard() {
 
   function calcFaturamento(todosDados) {
     const r = { Dinheiro: 0, Pix: 0, 'Cartão': 0, total: 0 };
+    const pixContados = [];
 
     todosDados.forEach(d => {
       const row = d._row;
       const dtPedido = parseDataPedido(row[COLS.DATA_PEDIDO]);
 
-      // Parcela 1: data de recebimento = Data do Pedido (col B)
+      // Parcela 1
       const rec1 = parseBRL(row[COLS.RECEBIDO]);
       const f1 = normForma(row[COLS.FORMA]);
       if (rec1 > 0 && dtPedido && dtPedido.getMonth()+1 === mes && dtPedido.getFullYear() === ano) {
         r[f1] = (r[f1] || 0) + rec1;
         r.total += rec1;
+        if (f1 === 'Pix') pixContados.push({comanda: row[COLS.COMANDA], parcela: 1, data: row[COLS.DATA_PEDIDO], valor: rec1});
       }
 
-      // Parcela 2: data de recebimento = Data 2ª Parcela (col I)
-      // Se col I vazia, usa Data do Pedido como fallback
+      // Parcela 2
       const rec2 = parseBRL(row[COLS.RECEBIDO2]);
       const f2 = normForma(row[COLS.FORMA2]);
       if (rec2 > 0) {
@@ -1050,9 +1051,14 @@ function renderDashboard() {
         if (dtRec2 && dtRec2.getMonth()+1 === mes && dtRec2.getFullYear() === ano) {
           r[f2] = (r[f2] || 0) + rec2;
           r.total += rec2;
+          if (f2 === 'Pix') pixContados.push({comanda: row[COLS.COMANDA], parcela: 2, data: row[COLS.DATA2]||row[COLS.DATA_PEDIDO], valor: rec2});
         }
       }
     });
+
+    console.log('=== PIX CONTADOS EM MARÇO ===');
+    pixContados.forEach(x => console.log(`Comanda:${x.comanda} | P${x.parcela} | Data:${x.data} | Valor:${x.valor}`));
+    console.log('TOTAL PIX:', pixContados.reduce((s,x)=>s+x.valor,0).toFixed(2));
     return r;
   }
 
