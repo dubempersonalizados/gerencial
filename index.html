@@ -1028,11 +1028,18 @@ function renderDashboard() {
 
   function calcFaturamento(todosDados) {
     const r = { Dinheiro: 0, Pix: 0, 'Cartão': 0, total: 0 };
-    const pixContados = [];
+    const missing = ['15273','15133','14327','15409','15336','14919','15909','14339'];
 
     todosDados.forEach(d => {
       const row = d._row;
       const dtPedido = parseDataPedido(row[COLS.DATA_PEDIDO]);
+
+      // Debug comandas faltantes
+      if (missing.includes(String(row[COLS.COMANDA]).trim())) {
+        const dtP = parseDataPedido(row[COLS.DATA_PEDIDO]);
+        const dtD = parseDataPedido(row[COLS.DATA2]);
+        console.log(`CMD:${row[COLS.COMANDA]} | DtPedido:${row[COLS.DATA_PEDIDO]}(${dtP?dtP.getMonth()+1+'/'+dtP.getFullYear():'null'}) | Rec1:${row[COLS.RECEBIDO]} Forma1:${row[COLS.FORMA]} | Rec2:${row[COLS.RECEBIDO2]} Data2:${row[COLS.DATA2]}(${dtD?dtD.getMonth()+1+'/'+dtD.getFullYear():'null'}) Forma2:${row[COLS.FORMA2]}`);
+      }
 
       // Parcela 1
       const rec1 = parseBRL(row[COLS.RECEBIDO]);
@@ -1040,7 +1047,6 @@ function renderDashboard() {
       if (rec1 > 0 && dtPedido && dtPedido.getMonth()+1 === mes && dtPedido.getFullYear() === ano) {
         r[f1] = (r[f1] || 0) + rec1;
         r.total += rec1;
-        if (f1 === 'Pix') pixContados.push({comanda: row[COLS.COMANDA], parcela: 1, data: row[COLS.DATA_PEDIDO], valor: rec1});
       }
 
       // Parcela 2
@@ -1051,14 +1057,9 @@ function renderDashboard() {
         if (dtRec2 && dtRec2.getMonth()+1 === mes && dtRec2.getFullYear() === ano) {
           r[f2] = (r[f2] || 0) + rec2;
           r.total += rec2;
-          if (f2 === 'Pix') pixContados.push({comanda: row[COLS.COMANDA], parcela: 2, data: row[COLS.DATA2]||row[COLS.DATA_PEDIDO], valor: rec2});
         }
       }
     });
-
-    console.log('=== PIX CONTADOS EM MARÇO ===');
-    pixContados.forEach(x => console.log(`Comanda:${x.comanda} | P${x.parcela} | Data:${x.data} | Valor:${x.valor}`));
-    console.log('TOTAL PIX:', pixContados.reduce((s,x)=>s+x.valor,0).toFixed(2));
     return r;
   }
 
