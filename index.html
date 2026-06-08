@@ -120,14 +120,20 @@
         .form-group label { font-size: 12px; font-weight: 600; color: var(--azul-marinho); }
         .form-group select, .form-group input { padding: 8px 12px; border: 1px solid #DFE3E8; border-radius: 6px; outline: none; min-width: 150px; }
 
-        .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-        .card { background: var(--azul-marinho); color: var(--branco); padding: 20px; border-radius: 12px; border-left: 5px solid var(--laranja); }
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .card { background: var(--azul-marinho); color: var(--branco); padding: 20px; border-radius: 12px; border-left: 5px solid var(--laranja); overflow: hidden; }
         .card.dia { border-left-color: #2EC4B6; }
         .card-header { font-size: 14px; color: var(--texto-mutado); text-transform: uppercase; font-weight: 600; margin-bottom: 15px; }
-        .card-valores { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
-        .val-box { background: var(--azul-card); padding: 10px; border-radius: 6px; text-align: center; }
-        .val-box span { display: block; font-size: 11px; color: var(--texto-mutado); }
-        .val-box strong { font-size: 13px; color: var(--branco); }
+        
+        /* AJUSTADO: Alinhamento inteligente usando flexbox com espaçamento igual para evitar estouros */
+        .card-valores { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 15px; width: 100%; }
+        
+        /* AJUSTADO: flex: 1 garante que as 3 caixas dividam o espaço exatamente iguais sem "vazar" */
+        .val-box { background: var(--azul-card); padding: 10px 5px; border-radius: 6px; text-align: center; flex: 1; min-width: 0; }
+        .val-box span { display: block; font-size: 11px; color: var(--texto-mutado); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
+        
+        /* AJUSTADO: Diminuído levemente de 13px para 12px ou responsivo para caber valores maiores de faturamento */
+        .val-box strong { font-size: 12px; color: var(--branco); display: block; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
         
         .card-meta-info { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; }
         .meta-txt p { font-size: 12px; color: var(--texto-mutado); }
@@ -154,8 +160,8 @@
 
         .table-container { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
-        th { background-color: var(--azul-marinho); color: var(--branco); padding: 14px 10px; font-weight: 500; }
-        td { padding: 12px 10px; border-bottom: 1px solid #EFEFEF; }
+        th { background-color: var(--azul-marinho); color: var(--branco); padding: 14px 10px; font-weight: 500; white-space: nowrap; }
+        td { padding: 12px 10px; border-bottom: 1px solid #EFEFEF; white-space: nowrap; }
         tr:hover td { background-color: #F8F9FA; }
         
         .badge { padding: 4px 8px; border-radius: 4px; font-weight: 600; font-size: 11px; color: white; display: inline-block; }
@@ -164,7 +170,6 @@
         .badge.entregue { background-color: var(--status-entregue); }
         .badge.na-loja { background-color: var(--status-na-loja); }
 
-        /* DESIGN DA NOVA BARRA DE PROGRESSO */
         .progress-container {
             background: #FFF5F2;
             border: 1px solid rgba(255, 107, 53, 0.3);
@@ -227,7 +232,7 @@
         </div>
 
         <section class="financeiro-section">
-            <div class="section-title">📊 Indicadores Financeiros</div>
+            <div class="section-title">📊 Indicadores Financeiros (BdMeta)</div>
             <div class="financeiro-filtros">
                 <div class="form-group">
                     <label>Filtrar Mês</label>
@@ -282,7 +287,7 @@
         </section>
 
         <section class="operacional-section">
-            <div class="section-title">📋 Controle de Pedidos</div>
+            <div class="section-title">📋 Controle de Pedidos (BdMapa)</div>
             <div class="filtros-operacionais">
                 <div class="form-group" style="flex: 1; min-width: 150px;">
                     <label>Comanda</label>
@@ -323,7 +328,8 @@
                             <th>Cliente</th>
                             <th>Qtd</th>
                             <th>Valor (R$)</th>
-                            <th>Recebido (R$)</th>
+                            <th>Recebido 1ª (R$)</th>
+                            <th>Recebido 2ª (R$)</th> 
                             <th>À Receber (R$)</th>
                             <th>Produto</th>
                             <th>Prev. Entrega</th>
@@ -337,13 +343,12 @@
     </div>
 
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwo7S-n-XsorGW08xkoDqXaBfE_KmiPh8HprhZtwQyjafnKTII9GcYCy6qotr4r8cQ/exec";
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwUZVPupB1ZYgCIXrV1-N8_ntB4WeEd5Kyh25T7zITkY4gFi4hw0_EubbAu9MJp67U0/exec";
 
         let dadosMapa = [];
         let dadosMeta = [];
         let statusAtivo = "Todos";
 
-        // Variáveis globais para fixar as escolhas de tela do usuário de forma absoluta
         let mesSelecionadoPreSync = "";
         let anoSelecionadoPreSync = "";
 
@@ -362,7 +367,6 @@
             definirDataAtual();
             gerarMarqueeContinuo();
             
-            // No primeiro carregamento da tela, adota o mês/ano corrente por padrão
             const mAtual = new Date().toLocaleString('pt-BR', { month: 'long' });
             mesSelecionadoPreSync = mAtual.charAt(0).toUpperCase() + mAtual.slice(1);
             anoSelecionadoPreSync = new Date().getFullYear().toString();
@@ -387,7 +391,6 @@
             setTimeout(() => { toast.classList.remove('mostrar'); }, 3000);
         }
 
-        // FUNÇÃO PARA ATUALIZAR A BARRA DE PROGRESSO ANIMADA
         function moverProgresso(porcentagem, texto) {
             const container = document.getElementById('loading-progress');
             const fill = document.getElementById('progress-fill');
@@ -414,10 +417,8 @@
 
                 moverProgresso(80, "⚙️ Estruturando filtros e aplicando proteções operacionais...");
 
-                // Renderiza parte operacional (mantém o que o usuário escreveu nos inputs de texto)
                 if(dadosMapa.length > 0) filtrarPedidos();
                 
-                // Constrói e preserva rigidamente o filtro de data
                 if(dadosMeta.length > 0) {
                     configurarFiltrosIniciaisMeta();
                     renderizarFinanceiro();
@@ -439,7 +440,6 @@
         }
 
         async function atualizarDadosMantendoFiltros() {
-            // REGRA DE OURO: Salva exatamente o que está na tela antes de rodar o fetch
             const selectMes = document.getElementById('filtro-mes');
             const selectAno = document.getElementById('filtro-ano');
             
@@ -460,12 +460,10 @@
             }, 600);
         }
 
-        // RECONSTRUÇÃO RETENDO AS ESCOLHAS DE FORMA ABSOLUTA
         function configurarFiltrosIniciaisMeta() {
             const selectMes = document.getElementById('filtro-mes');
             const selectAno = document.getElementById('filtro-ano');
 
-            // Extrai os meses e anos únicos e reais direto da sua planilha
             const meses = [...new Set(dadosMeta.map(item => item["Mês"]))].filter(Boolean);
             const anos = [...new Set(dadosMeta.map(item => String(item["Ano"])))].filter(Boolean);
             
@@ -475,7 +473,6 @@
             meses.forEach(m => selectMes.add(new Option(m, m)));
             anos.forEach(a => selectAno.add(new Option(a, a)));
 
-            // Validação e fixação blindada do Mês
             if(mesSelecionadoPreSync && meses.includes(mesSelecionadoPreSync)) {
                 selectMes.value = mesSelecionadoPreSync;
             } else {
@@ -484,7 +481,6 @@
                 if(meses.includes(mFormatado)) selectMes.value = mFormatado;
             }
             
-            // Validação e fixação blindada do Ano (Garante que volte para o 2026 escolhido)
             if(anoSelecionadoPreSync && anos.includes(String(anoSelecionadoPreSync))) {
                 selectAno.value = String(anoSelecionadoPreSync);
             } else {
@@ -510,7 +506,6 @@
                 document.getElementById('m-pix').innerText = formatarMoeda(registro["Pix"]);
                 document.getElementById('m-cartao').innerText = formatarMoeda(registro["Cartão"]);
             } else {
-                // Caso selecione um mês/ano sem registros na planilha, zera os cards de forma elegante
                 document.getElementById('m-acumulado').innerText = "R$ 0,00";
                 document.getElementById('m-meta').innerText = "R$ 0,00";
                 document.getElementById('m-percent').innerText = "0,00%";
@@ -604,6 +599,7 @@
                         <td>${pedido["Quantidade"] || '0'}</td>
                         <td>${formatarMoeda(pedido["Valor (R$)"])}</td>
                         <td>${formatarMoeda(pedido["Recebido (R$)"])}</td>
+                        <td>${formatarMoeda(pedido["Recebido 2ª Parcela"] || pedido["Recebido 2ª"])}</td> 
                         <td style="font-weight:600; color:${tratarNumero(pedido["À Receber (R$)"]) > 0 ? 'var(--status-atrasado)': 'inherit'}">${formatarMoeda(pedido["À Receber (R$)"])}</td>
                         <td>${pedido["Produto"] || '-'}</td>
                         <td>${prevEntrega}</td>
