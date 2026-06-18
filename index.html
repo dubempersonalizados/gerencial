@@ -4,641 +4,1212 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerenciamentos DUBEM</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --azul-marinho: #0A192F;
-            --azul-card: #172A45;
-            --laranja: #FF6B35;
-            --laranja-hover: #E85A28;
-            --branco: #FFFFFF;
-            --cinza-claro: #F4F6F9;
-            --texto-escuro: #333333;
-            --texto-mutado: #8892B0;
-            --status-no-prazo: #2EC4B6;
-            --status-atrasado: #E71D36;
-            --status-entregue: #20BF55;
-            --status-na-loja: #FF9F1C;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-        body { background-color: var(--cinza-claro); color: var(--texto-escuro); padding: 20px; }
-        
-        header {
-            background-color: var(--azul-marinho);
-            color: var(--branco);
+        body {
+            background-color: #f8fafc;
+            color: #1e293b;
+            padding: 20px;
+        }
+
+        :root {
+            --azul-marinho: #0a2463;
+            --azul-marinho-claro: #1e3a8a;
+            --azul-marinho-escuro: #061a4a;
+            --laranja: #f97316;
+            --laranja-claro: #fb923c;
+            --laranja-escuro: #ea580c;
+            --cinza-claro: #f1f5f9;
+            --cinza-borda: #e2e8f0;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            background: linear-gradient(135deg, var(--azul-marinho), var(--azul-marinho-escuro));
             padding: 20px 30px;
             border-radius: 12px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
-        header h1 { font-size: 24px; font-weight: 700; letter-spacing: 1px; }
-        header h1 span { color: var(--laranja); }
-        
-        .btn-atualizar {
-            background-color: var(--laranja);
-            color: var(--azul-marinho);
-            border: none;
-            padding: 10px 18px;
-            border-radius: 6px;
+        .header-info h1 {
+            color: white;
+            font-size: 24px;
             font-weight: 700;
-            cursor: pointer;
-            font-size: 13px;
-            display: flex;
+            letter-spacing: -0.5px;
+        }
+
+        .header-info h1 span {
+            color: var(--laranja);
+        }
+
+        .header-info p {
+            color: #94a3b8;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .status-badge-conexao {
+            display: inline-flex;
             align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 6px 12px;
+            border-radius: 20px;
+            color: #edf2f7;
+            font-size: 12px;
+            font-weight: 500;
         }
-        .btn-atualizar:hover {
-            background-color: var(--laranja-hover);
-            color: var(--branco);
-            transform: translateY(-2px);
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #10b981;
+            border-radius: 50%;
         }
-        
-        .marquee-container {
-            background-color: var(--azul-card);
-            border-bottom: 2px solid var(--laranja);
+
+        /* ===== BANNER DE VERSÍCULOS ===== */
+        .versiculo-banner {
+            background: #ffffff;
+            border: 1px solid var(--cinza-borda);
+            border-left: 4px solid var(--laranja);
             padding: 10px 0;
             border-radius: 8px;
             margin-bottom: 25px;
+            font-size: 14px;
+            color: #334155;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
             overflow: hidden;
-            position: relative;
-            display: flex;
-            align-items: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-        .marquee-text {
             white-space: nowrap;
+        }
+
+        .versiculo-track {
             display: inline-block;
-            animation: efeitoMarquee 60s linear infinite;
-            font-size: 13px;
-            font-weight: 500;
-            color: #BAC2DE;
-            padding-left: 10px;
+            white-space: nowrap;
+            animation: scrollVersiculo 880s linear infinite;
         }
-        .marquee-text strong { color: var(--laranja); }
-        .marquee-divisor { margin: 0 40px; color: var(--laranja); font-weight: bold; }
-        @keyframes efeitoMarquee {
-            0% { transform: translate3d(0, 0, 0); }
-            100% { transform: translate3d(-50%, 0, 0); }
+
+        .versiculo-track:hover {
+            animation-play-state: paused;
         }
-        .marquee-container:hover .marquee-text { animation-play-state: paused; cursor: pointer; }
 
-        .toast-popup {
-            position: fixed;
-            top: 25px;
-            right: 25px;
-            background-color: var(--azul-marinho);
-            color: var(--branco);
-            border-left: 5px solid #20BF55;
-            border-right: 2px solid var(--laranja);
-            padding: 15px 25px;
-            border-radius: 8px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            font-size: 14px;
-            font-weight: 500;
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transform: translateX(120%);
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        @keyframes scrollVersiculo {
+            0%   { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
         }
-        .toast-popup.mostrar { transform: translateX(0); }
 
-        .container { max-width: 1600px; margin: 0 auto; }
-        .financeiro-section { margin-bottom: 30px; }
-        
-        .section-title { font-size: 18px; color: var(--azul-marinho); margin-bottom: 15px; font-weight: 600; }
-        .financeiro-filtros { display: flex; gap: 15px; margin-bottom: 15px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .form-group { display: flex; flex-direction: column; gap: 5px; }
-        .form-group label { font-size: 12px; font-weight: 600; color: var(--azul-marinho); }
-        .form-group select, .form-group input { padding: 8px 12px; border: 1px solid #DFE3E8; border-radius: 6px; outline: none; min-width: 150px; }
-
-        .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
-        .card { background: var(--azul-marinho); color: var(--branco); padding: 20px; border-radius: 12px; border-left: 5px solid var(--laranja); overflow: hidden; }
-        .card.dia { border-left-color: #2EC4B6; }
-        .card-header { font-size: 14px; color: var(--texto-mutado); text-transform: uppercase; font-weight: 600; margin-bottom: 15px; }
-        
-        /* AJUSTADO: Alinhamento inteligente usando flexbox com espaçamento igual para evitar estouros */
-        .card-valores { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 15px; width: 100%; }
-        
-        /* AJUSTADO: flex: 1 garante que as 3 caixas dividam o espaço exatamente iguais sem "vazar" */
-        .val-box { background: var(--azul-card); padding: 10px 5px; border-radius: 6px; text-align: center; flex: 1; min-width: 0; }
-        .val-box span { display: block; font-size: 11px; color: var(--texto-mutado); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
-        
-        /* AJUSTADO: Diminuído levemente de 13px para 12px ou responsivo para caber valores maiores de faturamento */
-        .val-box strong { font-size: 12px; color: var(--branco); display: block; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
-        
-        .card-meta-info { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; }
-        .meta-txt p { font-size: 12px; color: var(--texto-mutado); }
-        .meta-txt h4 { font-size: 16px; color: var(--branco); }
-        .percent-badge { background: var(--laranja); color: var(--azul-marinho); font-weight: 700; padding: 8px 12px; border-radius: 30px; font-size: 15px; white-space: nowrap; }
-        .card.dia .percent-badge { background: #2EC4B6; }
-
-        .operacional-section { background: var(--branco); padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .filtros-operacionais { display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end; margin-bottom: 25px; border-bottom: 1px solid #EEEEEE; padding-bottom: 20px; }
-        .btn-status-group { display: flex; gap: 8px; flex-wrap: wrap; }
-        
-        .btn-status { padding: 9px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 13px; background: #E4E7EB; }
-        .btn-status.active[data-status="Todos"] { background: var(--azul-marinho); color: white; }
-        .btn-status.active[data-status="No Prazo"] { background: var(--status-no-prazo); color: white; }
-        .btn-status.active[data-status="Atrasado"] { background: var(--status-atrasado); color: white; }
-        .btn-status.active[data-status="Entregue"] { background: var(--status-entregue); color: white; }
-        .btn-status.active[data-status="Na Loja"] { background: var(--status-na-loja); color: white; }
-
-        .resumo-filtros { display: flex; gap: 20px; margin-bottom: 20px; }
-        .resumo-box { background: var(--cinza-claro); padding: 10px 20px; border-radius: 8px; border-left: 4px solid var(--azul-marinho); }
-        .resumo-box.laranja { border-left-color: var(--laranja); }
-        .resumo-box span { font-size: 12px; color: #666; display: block; }
-        .resumo-box strong { font-size: 20px; color: var(--azul-marinho); }
-
-        .table-container { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
-        th { background-color: var(--azul-marinho); color: var(--branco); padding: 14px 10px; font-weight: 500; white-space: nowrap; }
-        td { padding: 12px 10px; border-bottom: 1px solid #EFEFEF; white-space: nowrap; }
-        tr:hover td { background-color: #F8F9FA; }
-        
-        .badge { padding: 4px 8px; border-radius: 4px; font-weight: 600; font-size: 11px; color: white; display: inline-block; }
-        .badge.no-prazo { background-color: var(--status-no-prazo); }
-        .badge.atrasado { background-color: var(--status-atrasado); }
-        .badge.entregue { background-color: var(--status-entregue); }
-        .badge.na-loja { background-color: var(--status-na-loja); }
-
-        .progress-container {
-            background: #FFF5F2;
-            border: 1px solid rgba(255, 107, 53, 0.3);
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 25px;
-            display: none;
+        .versiculo-item {
+            display: inline-block;
+            padding: 0 60px;
         }
-        .progress-info {
-            display: flex;
-            justify-content: space-between;
-            font-size: 14px;
+
+        .versiculo-texto {
+            font-style: italic;
+        }
+
+        .versiculo-ref {
             font-weight: 600;
             color: var(--azul-marinho);
-            margin-bottom: 8px;
+            margin-left: 6px;
         }
-        .progress-bar-bg {
-            background: #E4E7EB;
-            height: 12px;
-            border-radius: 6px;
-            overflow: hidden;
+
+        .versiculo-sep {
+            margin: 0 40px;
+            color: var(--laranja);
+            opacity: 0.5;
+        }
+
+        /* ===== FILTROS SUPERIORES ===== */
+        .filtros-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid var(--cinza-borda);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+
+        .filtros-grid {
+            display: grid;
+            grid-template-columns: minmax(130px, 180px) minmax(100px, 130px) auto;
+            gap: 16px;
+            align-items: flex-end;
+        }
+
+        .grupo-campo {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .grupo-campo label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .grupo-campo select, .grupo-campo input {
+            padding: 10px 14px;
+            border: 1px solid var(--cinza-borda);
+            border-radius: 8px;
+            font-size: 14px;
+            background-color: #fff;
+            color: #1e293b;
+            outline: none;
+            transition: border-color 0.2s;
             width: 100%;
         }
-        .progress-bar-fill {
-            background: linear-gradient(90deg, var(--laranja) 0%, #FF9F1C 100%);
-            height: 100%;
-            width: 0%;
+
+        .grupo-campo select:focus, .grupo-campo input:focus {
+            border-color: var(--azul-marinho-claro);
+        }
+
+        .btn-primario {
+            background: var(--azul-marinho);
+            color: white;
+            border: none;
+            padding: 11px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-primario:hover {
+            background: var(--azul-marinho-claro);
+        }
+
+        .btn-secundario {
+            background: var(--cinza-claro);
+            color: #475569;
+            border: 1px solid var(--cinza-borda);
+            padding: 11px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secundario:hover {
+            background: #e2e8f0;
+        }
+
+        /* ===== CARDS DE INDICADORES ===== */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .card-indicador {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--cinza-borda);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 140px;
+        }
+
+        .card-indicador.destaque-laranja { border-top: 4px solid var(--laranja); }
+        .card-indicador.destaque-azul { border-top: 4px solid var(--azul-marinho); }
+        .card-indicador.destaque-verde { border-top: 4px solid #10b981; }
+
+        .card-titulo {
+            font-size: 13px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .card-valor {
+            font-size: 26px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-top: 10px;
+            letter-spacing: -0.5px;
+        }
+
+        .card-detalhe {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .sub-valores-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .sub-valor-box {
+            background: var(--cinza-claro);
+            padding: 6px;
             border-radius: 6px;
-            transition: width 0.3s ease;
+            text-align: center;
+        }
+
+        .sub-valor-label {
+            font-size: 10px;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .sub-valor-num {
+            font-size: 11px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-top: 2px;
+        }
+
+        /* ===== SEÇÃO DE PEDIDOS ===== */
+        .secao-titulo {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 15px;
+            padding-left: 2px;
+        }
+
+        .filtros-status {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .status-btn {
+            padding: 8px 16px;
+            border: 1px solid var(--cinza-borda);
+            background: white;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .status-btn:hover {
+            background: var(--cinza-claro);
+        }
+
+        .status-btn.active {
+            background: var(--azul-marinho);
+            color: white;
+            border-color: var(--azul-marinho);
+        }
+
+        /* ===== RESUMO DA BUSCA ===== */
+        .resumo-busca-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .resumo-busca-card {
+            background: #ffffff;
+            border: 1px solid var(--cinza-borda);
+            padding: 14px;
+            border-radius: 10px;
+        }
+
+        .resumo-busca-card .label {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .resumo-busca-card .value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-top: 4px;
+        }
+
+        /* ===== TABELA ===== */
+        .tabela-container {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--cinza-borda);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+            min-width: 1000px;
+        }
+
+        thead {
+            background: var(--cinza-claro);
+            color: #475569;
+            border-bottom: 1px solid var(--cinza-borda);
+        }
+
+        th {
+            padding: 14px 16px;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--cinza-borda);
+            color: #334155;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background-color: #f8fafc;
+        }
+
+        /* ===== BADGES DE STATUS ===== */
+        .badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .badge-no-prazo { background-color: #dcfce7; color: #15803d; }
+        .badge-atrasado { background-color: #fee2e2; color: #b91c1c; }
+        .badge-entregue { background-color: #e0f2fe; color: #0369a1; }
+        .badge-na-loja { background-color: #fef3c7; color: #b45309; }
+
+        .btn-whatsapp {
+            background-color: #25d366;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 11px;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-whatsapp:hover {
+            background-color: #22c35e;
+        }
+
+        .btn-whatsapp:disabled {
+            background-color: #e2e8f0;
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        /* ===== BARRA DE PROGRESSO ===== */
+        .progress-bar-wrap {
+            width: 100%;
+            background: rgba(0,0,0,0.08);
+            border-radius: 999px;
+            height: 6px;
+            margin-top: 16px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 6px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #f97316, #fb923c);
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+        .progress-label {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 8px;
+            text-align: center;
+        }
+
+        /* ===== BOTÃO ATUALIZAR ===== */
+        .btn-atualizar {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255,255,255,0.12);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.25);
+            padding: 7px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-atualizar:hover { background: rgba(255,255,255,0.22); }
+        .btn-atualizar:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-atualizar.girando svg { animation: spin 0.8s linear infinite; }
+
+        /* ===== LOADING REFINADO ===== */
+        .loading-container {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .spinner {
+            border: 3px solid var(--cinza-borda);
+            border-top: 3px solid var(--laranja);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .erro {
+            background: #fee2e2;
+            border: 1px solid #fca5a5;
+            color: #991b1b;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .header { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .filtros-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
-    <div id="toast" class="toast-popup">✔️ Dados sincronizados com sucesso!</div>
-
-    <div class="container">
-        <header>
-            <div>
-                <h1>Gerenciamentos <span>DUBEM</span></h1>
-                <div id="data-atual" style="font-size: 13px; opacity: 0.8; margin-top: 4px;"></div>
-            </div>
-            <button class="btn-atualizar" id="btn-sync" onclick="atualizarDadosMantendoFiltros()">
-                <span id="icone-btn" style="display: inline-block;">🔄</span> Atualizar Dados
+    <header class="header">
+        <div class="header-info">
+            <h1>Gerenciamentos <span>DUBEM</span></h1>
+            <p id="dataAtual">Carregando data...</p>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+            <button class="btn-atualizar" id="btnAtualizar" onclick="atualizarDados()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                Atualizar
             </button>
-        </header>
-
-        <div class="marquee-container">
-            <div class="marquee-text" id="espaco-versiculo">Carregando provérbios e passagens...</div>
-        </div>
-
-        <div id="loading-progress" class="progress-container">
-            <div class="progress-info">
-                <span id="progress-text">🔄 Conectando ao Banco de Dados DUBEM...</span>
-                <span id="progress-percentage">0%</span>
-            </div>
-            <div class="progress-bar-bg">
-                <div id="progress-fill" class="progress-bar-fill"></div>
+            <div class="status-badge-conexao">
+                <div class="status-dot"></div>
+                <span id="statusTexto">Conectando...</span>
             </div>
         </div>
+    </header>
 
-        <section class="financeiro-section">
-            <div class="section-title">📊 Indicadores Financeiros</div>
-            <div class="financeiro-filtros">
-                <div class="form-group">
-                    <label>Filtrar Mês</label>
-                    <select id="filtro-mes" onchange="renderizarFinanceiro()"></select>
+    <div class="versiculo-banner">
+        <div class="versiculo-track" id="versiculoTrack"></div>
+    </div>
+
+    <div id="loading" class="loading-container">
+        <div class="spinner"></div>
+        <p style="color: #64748b; font-size: 14px;" id="loadingMsg">Conectando à planilha...</p>
+        <div class="progress-bar-wrap" style="max-width:320px; margin:14px auto 0;">
+            <div class="progress-bar-fill" id="progressBar"></div>
+        </div>
+        <p class="progress-label" id="progressLabel">0%</p>
+    </div>
+
+    <div id="conteudo" style="display: none;">
+        
+        <div class="filtros-card">
+            <div style="font-weight: 700; font-size: 15px; color: #1f2937; margin-bottom: 15px;">📊 Filtros de Faturamento</div>
+            <div class="filtros-grid">
+                <div class="grupo-campo">
+                    <label for="filtroMes">Mês de Referência</label>
+                    <select id="filtroMes"></select>
                 </div>
-                <div class="form-group">
-                    <label>Filtrar Ano</label>
-                    <select id="filtro-ano" onchange="renderizarFinanceiro()"></select>
+                <div class="grupo-campo">
+                    <label for="filtroAno">Ano</label>
+                    <select id="filtroAno"></select>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn-primario" id="btnAplicarFiltros">Filtrar</button>
+                    <button class="btn-secundario" id="btnLimparFiltros">Limpar</button>
                 </div>
             </div>
+        </div>
 
-            <div class="cards-grid">
-                <div class="card">
-                    <div class="card-header">Faturamento por Tipo (Mensal)</div>
-                    <div class="card-valores">
-                        <div class="val-box"><span>Dinheiro</span><strong id="m-dinheiro">R$ 0,00</strong></div>
-                        <div class="val-box"><span>Pix</span><strong id="m-pix">R$ 0,00</strong></div>
-                        <div class="val-box"><span>Cartão</span><strong id="m-cartao">R$ 0,00</strong></div>
-                    </div>
+        <div class="cards-grid">
+            <div class="card-indicador destaque-laranja" id="cardFaturamentoMensal"></div>
+            <div class="card-indicador destaque-azul" id="cardMetaAcumulado"></div>
+            <div class="card-indicador destaque-verde" id="cardFaturamentoDiario"></div>
+            <div class="card-indicador destaque-verde" id="cardMetaDiaria"></div>
+        </div>
+
+        <div class="secao-titulo" style="margin-top: 35px;">📋 Controle Operacional de Pedidos</div>
+        
+        <div class="filtros-card" style="margin-bottom: 15px;">
+            <div style="display:grid; grid-template-columns: 130px 2fr 1fr auto; gap:16px; align-items:flex-end;">
+                <div class="grupo-campo">
+                    <label for="buscaComanda">Nº Comanda</label>
+                    <input type="text" id="buscaComanda" placeholder="Ex: 1050">
                 </div>
-                <div class="card">
-                    <div class="card-header">Meta vs Acumulado (Mensal)</div>
-                    <div class="card-meta-info">
-                        <div class="meta-txt">
-                            <p>Meta: <span id="m-meta">R$ 0,00</span></p>
-                            <p>Acumulado:</p>
-                            <h4 id="m-acumulado">R$ 0,00</h4>
-                        </div>
-                        <div class="percent-badge" id="m-percent">0,00%</div>
-                    </div>
+                <div class="grupo-campo">
+                    <label for="buscaCliente">Cliente</label>
+                    <input type="text" id="buscaCliente" placeholder="Buscar nome do cliente...">
                 </div>
-                <div class="card dia">
-                    <div class="card-header">Faturamento por Tipo (Diário)</div>
-                    <div class="card-valores">
-                        <div class="val-box"><span>Dinheiro</span><strong id="d-dinheiro">R$ 0,00</strong></div>
-                        <div class="val-box"><span>Pix</span><strong id="d-pix">R$ 0,00</strong></div>
-                        <div class="val-box"><span>Cartão</span><strong id="d-cartao">R$ 0,00</strong></div>
-                    </div>
+                <div class="grupo-campo">
+                    <label for="buscaGlobal">Busca Geral</label>
+                    <input type="text" id="buscaGlobal" placeholder="Produto, contato, etc...">
                 </div>
-                <div class="card dia">
-                    <div class="card-header">Meta Diária</div>
-                    <div class="card-meta-info">
-                        <div class="meta-txt">
-                            <p>Meta Dia: <span id="d-meta">R$ 0,00</span></p>
-                            <p>Recebido no Dia:</p>
-                            <h4 id="d-acumulado">R$ 0,00</h4>
-                        </div>
-                        <div class="percent-badge" id="d-percent">0,00%</div>
-                    </div>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn-primario" id="btnBuscarPedidos">Buscar</button>
+                    <button class="btn-secundario" id="btnLimparFiltrosPedidos">Limpar</button>
                 </div>
             </div>
-        </section>
+        </div>
 
-        <section class="operacional-section">
-            <div class="section-title">📋 Controle de Pedidos</div>
-            <div class="filtros-operacionais">
-                <div class="form-group" style="flex: 1; min-width: 150px;">
-                    <label>Comanda</label>
-                    <input type="text" id="busca-comanda" placeholder="Nº Comanda..." oninput="filtrarPedidos()">
-                </div>
-                <div class="form-group" style="flex: 2; min-width: 200px;">
-                    <label>Cliente</label>
-                    <input type="text" id="busca-cliente" placeholder="Nome do cliente..." oninput="filtrarPedidos()">
-                </div>
-                <div class="form-group" style="flex: 2; min-width: 250px;">
-                    <label>Busca Global</label>
-                    <input type="text" id="busca-global" placeholder="Pesquise em qualquer campo..." oninput="filtrarPedidos()">
-                </div>
-                <div class="form-group">
-                    <label>Status do Pedido</label>
-                    <div class="btn-status-group">
-                        <button class="btn-status active" data-status="Todos" onclick="setFilterStatus('Todos')">Todos</button>
-                        <button class="btn-status" data-status="No Prazo" onclick="setFilterStatus('No Prazo')">No Prazo</button>
-                        <button class="btn-status" data-status="Atrasado" onclick="setFilterStatus('Atrasado')">Atrasado</button>
-                        <button class="btn-status" data-status="Entregue" onclick="setFilterStatus('Entregue')">Entregue</button>
-                        <button class="btn-status" data-status="Na Loja" onclick="setFilterStatus('Na Loja')">Na Loja</button>
-                    </div>
-                </div>
-            </div>
+        <div class="filtros-status">
+            <button class="status-btn active" data-status="todos">Todos</button>
+            <button class="status-btn" data-status="No Prazo">No Prazo</button>
+            <button class="status-btn" data-status="Atrasado">Atrasado</button>
+            <button class="status-btn" data-status="Entregue">Entregue</button>
+            <button class="status-btn" data-status="Na Loja">Na Loja</button>
+        </div>
 
-            <div class="resumo-filtros">
-                <div class="resumo-box"><span>Qtd. Pedidos Filtrados</span><strong id="total-pedidos">0</strong></div>
-                <div class="resumo-box laranja"><span>Valor Total Filtrado</span><strong id="total-valor">R$ 0,00</strong></div>
-                <div class="resumo-box"><span>Total À Receber</span><strong id="total-areceber" style="color: var(--status-atrasado);">R$ 0,00</strong></div>
+        <div class="resumo-busca-cards">
+            <div class="resumo-busca-card" style="border-left: 3px solid var(--azul-marinho);">
+                <div class="label">Qtd. Pedidos Filtrados</div>
+                <div class="value" id="totalPedidos">0</div>
             </div>
+            <div class="resumo-busca-card" style="border-left: 3px solid #8b5cf6;">
+                <div class="label">Qtd. de Peças</div>
+                <div class="value" style="color: #6d28d9;" id="totalPecas">0</div>
+            </div>
+            <div class="resumo-busca-card" style="border-left: 3px solid var(--laranja);">
+                <div class="label">Valor Total Filtrado</div>
+                <div class="value" id="valorTotalFiltrado">R$ 0,00</div>
+            </div>
+            <div class="resumo-busca-card" style="border-left: 3px solid #ef4444;">
+                <div class="label">Total À Receber</div>
+                <div class="value" style="color: #b91c1c;" id="valorReceberFiltrado">R$ 0,00</div>
+            </div>
+        </div>
 
-            <div class="table-container">
-                <table id="tabela-pedidos">
-                    <thead>
-                        <tr>
-                            <th>Comanda</th>
-                            <th>Data Pedido</th>
-                            <th>Cliente</th>
-                            <th>Qtd</th>
-                            <th>Valor (R$)</th>
-                            <th>Recebido 1ª (R$)</th>
-                            <th>Recebido 2ª (R$)</th> 
-                            <th>À Receber (R$)</th>
-                            <th>Produto</th>
-                            <th>Prev. Entrega</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="dados-tabela"></tbody>
-                </table>
-            </div>
-        </section>
+        <div class="tabela-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Comanda</th>
+                        <th>Data Pedido</th>
+                        <th>Cliente</th>
+                        <th>Qtd</th>
+                        <th>Valor Total</th>
+                        <th>Recebido 1º</th>
+                        <th>Recebido 2º</th>
+                        <th>À Receber</th>
+                        <th>Produto</th>
+                        <th>Prev. Entrega</th>
+                        <th>Contato</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelaPedidos"></tbody>
+            </table>
+        </div>
     </div>
 
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwUZVPupB1ZYgCIXrV1-N8_ntB4WeEd5Kyh25T7zITkY4gFi4hw0_EubbAu9MJp67U0/exec";
-
-        let dadosMapa = [];
-        let dadosMeta = [];
-        let statusAtivo = "Todos";
-
-        let mesSelecionadoPreSync = "";
-        let anoSelecionadoPreSync = "";
-
-        const versiculosBase = [
-            "“Consagre ao Senhor tudo o que você faz, e os seus planos serão bem-sucedidos.” — <strong>Provérbios 16:3</strong>",
-            "“O Senhor é o meu pastor; de nada terei falta.” — <strong>Salmos 23:1</strong>",
-            "“Tudo posso naquele que me fortalece.” — <strong>Filipenses 4:13</strong>",
-            "“Entrega o teu caminho ao Senhor; confia nele, e ele o fará.” — <strong>Salmos 37:5</strong>",
-            "“Porque sou eu que conheço os planos que tenho para vocês, diz o Senhor, planos de prosperidade e não de mal.” — <strong>Jeremias 29:11</strong>",
-            "“Seja forte e corajoso! Não se apavore nem desanime, pois o Senhor, o seu Deus, estará com você por onde você andar.” — <strong>Josué 1:9</strong>",
-            "“Até aqui nos ajudou o Senhor.” — <strong>1 Samuel 7:12</strong>",
-            "“O próprio Senhor irá à sua frente e estará com você; ele nunca o deixará, nunca o abandonará.” — <strong>Deuteronômio 31:8</strong>"
+        // ===== 200 VERSÍCULOS MARQUEE =====
+        const versiculos = [
+            {texto: "Seja forte e corajoso! Não se apavore nem desanime, pois o Senhor estará com você.", ref: "Josué 1:9"},
+            {texto: "O Senhor é o meu pastor, nada me faltará.", ref: "Salmos 23:1"},
+            {texto: "Tudo posso naquele que me fortalece.", ref: "Filipenses 4:13"},
+            {texto: "Confie no Senhor de todo o seu coração e não se apoie em seu próprio entendimento.", ref: "Provérbios 3:5"},
+            {texto: "O amor é paciente, o amor é bondoso. Não inveja, não se vangloria, não se orgulha.", ref: "1 Coríntios 13:4"},
+            {texto: "Porque Deus tanto amou o mundo que deu o seu Filho Unigênito.", ref: "João 3:16"},
+            {texto: "Não se turbe o vosso coração; credes em Deus, crede também em mim.", ref: "João 14:1"},
+            {texto: "Busquem, pois, em primeiro lugar o Reino de Deus e a sua justiça.", ref: "Mateus 6:33"},
+            {texto: "Pois eu sei os planos que tenho para vocês, planos de fazê-los prosperar e não de causar dano.", ref: "Jeremias 29:11"},
+            {texto: "Alegrem-se sempre no Senhor. Novamente direi: alegrem-se!", ref: "Filipenses 4:4"},
+            {texto: "A fé é a certeza daquilo que esperamos e a prova das coisas que não vemos.", ref: "Hebreus 11:1"},
+            {texto: "Eu sou a videira; vocês são os ramos.", ref: "João 15:5"},
+            {texto: "O Senhor é minha luz e minha salvação; a quem temerei?", ref: "Salmos 27:1"},
+            {texto: "Não devolvam o mal pelo mal. Procurem fazer o bem a todos.", ref: "Romanos 12:17"},
+            {texto: "Aquele que habita no esconderijo do Altíssimo, à sombra do Onipotente descansará.", ref: "Salmos 91:1"},
+            {texto: "Deus é o nosso refúgio e a nossa força, socorro bem presente na angústia.", ref: "Salmos 46:1"},
+            {texto: "O temor do Senhor é o princípio da sabedoria.", ref: "Provérbios 9:10"},
+            {texto: "Nunca se afaste de sua boca este livro da Lei; medita nele de dia e de noite.", ref: "Josué 1:8"},
+            {texto: "Toda a Escritura é inspirada por Deus e útil para o ensino.", ref: "2 Timóteo 3:16"},
+            {texto: "Pois onde dois ou três se reúnem em meu nome, ali estou no meio deles.", ref: "Mateus 18:20"},
+            {texto: "Ide por todo o mundo e pregai o evangelho a toda criatura.", ref: "Marcos 16:15"},
+            {texto: "Posso fazer tudo por meio daquele que me fortalece.", ref: "Filipenses 4:13"},
+            {texto: "Sede fortes e corajosos. Não temais nem vos espanteis.", ref: "Deuteronômio 31:6"},
+            {texto: "E conhecereis a verdade, e a verdade vos libertará.", ref: "João 8:32"},
+            {texto: "Eu vim para que tenham vida, e a tenham plenamente.", ref: "João 10:10"},
+            {texto: "O Senhor é bom para todos; o seu amor alcança tudo o que ele fez.", ref: "Salmos 145:9"},
+            {texto: "Louvai ao Senhor, porque ele é bom; o seu amor dura para sempre.", ref: "Salmos 107:1"},
+            {texto: "Pois onde está o teu tesouro, aí também estará o teu coração.", ref: "Mateus 6:21"},
+            {texto: "Não vos conformeis com este século, mas transformai-vos pela renovação do vosso entendimento.", ref: "Romanos 12:2"},
+            {texto: "Porque o salário do pecado é a morte, mas o dom gratuito de Deus é a vida eterna.", ref: "Romanos 6:23"},
+            {texto: "Deleita-te também no Senhor, e ele te concederá os desejos do teu coração.", ref: "Salmos 37:4"},
+            {texto: "O Senhor abençoe você e te guarde; o Senhor faça resplandecer o seu rosto sobre você.", ref: "Números 6:24-25"},
+            {texto: "Mas os que esperam no Senhor renovarão as suas forças.", ref: "Isaías 40:31"},
+            {texto: "Amo-te, ó Senhor, força minha.", ref: "Salmos 18:1"},
+            {texto: "Ensinai-me, Senhor, os vossos caminhos; guiai-me nas vossas verdades.", ref: "Salmos 25:4"},
+            {texto: "Os jovens se cansam e se fatigam, os moços tropeçam e caem, mas os que esperam no Senhor renovam as forças.", ref: "Isaías 40:30-31"},
+            {texto: "Porque Deus não nos deu um espírito de timidez, mas de poder, de amor e de equilíbrio.", ref: "2 Timóteo 1:7"},
+            {texto: "Antes de te formar no ventre materno, eu te conheci.", ref: "Jeremias 1:5"},
+            {texto: "Bem-aventurados os puros de coração, pois eles verão a Deus.", ref: "Mateus 5:8"},
+            {texto: "Bendize, ó minha alma, ao Senhor, e tudo o que há em mim bendiga o seu santo nome.", ref: "Salmos 103:1"},
+            {texto: "O coração do homem planeja o seu caminho, mas o Senhor lhe dirige os passos.", ref: "Provérbios 16:9"},
+            {texto: "Aguarda o Senhor; sê forte, e ele fortalecerá o teu coração.", ref: "Salmos 27:14"},
+            {texto: "Sede, pois, misericordiosos, como também vosso Pai é misericordioso.", ref: "Lucas 6:36"},
+            {texto: "Portanto, não vos preocupeis com o amanhã; o amanhã terá suas próprias preocupações.", ref: "Mateus 6:34"},
+            {texto: "Não nos cansemos de fazer o bem, pois a seu tempo ceifaremos, se não desanimarmos.", ref: "Gálatas 6:9"},
+            {texto: "Porque eu, o Senhor teu Deus, te seguro pela mão direita e te digo: Não temas, eu te ajudo.", ref: "Isaías 41:13"},
+            {texto: "O Senhor te guardará de todo o mal; ele guardará a tua vida.", ref: "Salmos 121:7"},
+            {texto: "Lançando sobre ele toda a vossa ansiedade, porque ele tem cuidado de vós.", ref: "1 Pedro 5:7"},
+            {texto: "Cria em mim, ó Deus, um coração puro, e renova um espírito firme dentro de mim.", ref: "Salmos 51:10"},
+            {texto: "O Senhor te guardará na saída e na entrada, desde agora e para sempre.", ref: "Salmos 121:8"},
+            {texto: "Não há nada impossível para Deus.", ref: "Lucas 1:37"},
+            {texto: "Vinde a mim, todos os que estais cansados e sobrecarregados, e eu vos darei descanso.", ref: "Mateus 11:28"},
+            {texto: "O Espírito do Senhor está sobre mim, porque me ungiu para evangelizar os pobres.", ref: "Lucas 4:18"},
+            {texto: "Sê a luz do mundo. Uma cidade construída sobre um monte não pode esconder-se.", ref: "Mateus 5:14"},
+            {texto: "E tudo o que pedirdes em meu nome, eu o farei, para que o Pai seja glorificado no Filho.", ref: "João 14:13"},
+            {texto: "Sede sempre alegres, orai sem cessar, em tudo dai graças.", ref: "1 Tessalonicenses 5:16-18"},
+            {texto: "Esteja sempre pronto a dar uma resposta a qualquer pessoa que lhe pedir a razão da esperança que há em vós.", ref: "1 Pedro 3:15"},
+            {texto: "O amor de Deus foi derramado em nossos corações pelo Espírito Santo que nos foi dado.", ref: "Romanos 5:5"},
+            {texto: "Mas Deus demonstra o seu amor por nós: Cristo morreu em nosso favor quando éramos pecadores.", ref: "Romanos 5:8"},
+            {texto: "Portanto, não há agora condenação alguma para os que estão em Cristo Jesus.", ref: "Romanos 8:1"},
+            {texto: "Quem nos separará do amor de Cristo?", ref: "Romanos 8:35"},
+            {texto: "Porque estou convicto de que nem morte, nem vida... nos poderá separar do amor de Deus.", ref: "Romanos 8:38-39"},
+            {texto: "Sede, pois, imitadores de Deus, como filhos amados.", ref: "Efésios 5:1"},
+            {texto: "Revesti-vos de toda a armadura de Deus para que possais ficar firmes.", ref: "Efésios 6:11"},
+            {texto: "Porque pela graça sois salvos, mediante a fé; e isto não vem de vós, é dom de Deus.", ref: "Efésios 2:8"},
+            {texto: "A paz de Deus, que excede todo o entendimento, guardará os vossos corações.", ref: "Filipenses 4:7"},
+            {texto: "E o meu Deus suprirá todas as vossas necessidades segundo as suas riquezas em glória.", ref: "Filipenses 4:19"},
+            {texto: "Tudo posso naquele que me fortalece.", ref: "Filipenses 4:13"},
+            {texto: "Portanto, se alguém está em Cristo, é nova criatura. As coisas antigas já passaram.", ref: "2 Coríntios 5:17"},
+            {texto: "O Senhor é o meu pastor e nada me faltará.", ref: "Salmos 23:1"},
+            {texto: "Ainda que eu ande pelo vale da sombra da morte, não temerei mal algum, pois tu estás comigo.", ref: "Salmos 23:4"},
+            {texto: "A bondade e a misericórdia hão de seguir-me todos os dias da minha vida.", ref: "Salmos 23:6"},
+            {texto: "O Senhor é a minha força e o meu escudo; nele o meu coração confia.", ref: "Salmos 28:7"},
+            {texto: "Provai e vede que o Senhor é bom; bem-aventurado o homem que nele se refugia.", ref: "Salmos 34:8"},
+            {texto: "Entrega o teu caminho ao Senhor; confia nele, e ele agirá.", ref: "Salmos 37:5"},
+            {texto: "Esperei com paciência no Senhor, e ele se inclinou para mim, e ouviu o meu clamor.", ref: "Salmos 40:1"},
+            {texto: "Como o cervo anseia pelas correntes de água, assim a minha alma te anseia, ó Deus.", ref: "Salmos 42:1"},
+            {texto: "Sede quetos e sabei que eu sou Deus.", ref: "Salmos 46:10"},
+            {texto: "Misericordioso e clemente é o Senhor, tardio em irar-se e grande em benignidade.", ref: "Salmos 103:8"},
+            {texto: "Como o pai se compadece dos filhos, assim o Senhor se compadece dos que o temem.", ref: "Salmos 103:13"},
+            {texto: "A palavra do Senhor é lâmpada para os meus pés e luz para o meu caminho.", ref: "Salmos 119:105"},
+            {texto: "O princípio da sabedoria é o temor do Senhor.", ref: "Salmos 111:10"},
+            {texto: "Elevo os meus olhos para os montes. De onde me vem o socorro? O meu socorro vem do Senhor.", ref: "Salmos 121:1-2"},
+            {texto: "Filho meu, não te esqueças do meu ensino, e o teu coração guarde os meus mandamentos.", ref: "Provérbios 3:1"},
+            {texto: "Reconhece-o em todos os teus caminhos, e ele endireitará as tuas veredas.", ref: "Provérbios 3:6"},
+            {texto: "A palavra branda desvia o furor, mas a palavra dura suscita a ira.", ref: "Provérbios 15:1"},
+            {texto: "O orgulho vem antes da destruição, e o espírito altivo antes da queda.", ref: "Provérbios 16:18"},
+            {texto: "Melhor é o fim de uma coisa do que o seu começo.", ref: "Eclesiastes 7:8"},
+            {texto: "Bem-aventurados os que têm fome e sede de justiça, pois serão saciados.", ref: "Mateus 5:6"},
+            {texto: "Bem-aventurados os misericordiosos, pois eles obterão misericórdia.", ref: "Mateus 5:7"},
+            {texto: "Bem-aventurados os pacificadores, pois serão chamados filhos de Deus.", ref: "Mateus 5:9"},
+            {texto: "Vós sois o sal da terra.", ref: "Mateus 5:13"},
+            {texto: "Amai os vossos inimigos e orai pelos que vos perseguem.", ref: "Mateus 5:44"},
+            {texto: "Sede, pois, perfeitos, como é perfeito o vosso Pai celestial.", ref: "Mateus 5:48"},
+            {texto: "Pedi e dar-se-vos-á; buscai e encontrareis; batei e abrir-se-vos-á.", ref: "Mateus 7:7"},
+            {texto: "Tudo quanto quereis que os homens vos façam, fazei-o vós a eles.", ref: "Mateus 7:12"},
+            {texto: "Entrai pela porta estreita, porque larga é a porta e espaçoso o caminho que leva à perdição.", ref: "Mateus 7:13"},
+            {texto: "Conhecê-los-eis pelos seus frutos.", ref: "Mateus 7:16"},
+            {texto: "Eu sou o caminho, a verdade e a vida.", ref: "João 14:6"},
+            {texto: "A paz vos deixo, a minha paz vos dou.", ref: "João 14:27"},
+            {texto: "Permanecei em mim, e eu permanecerei em vós.", ref: "João 15:4"},
+            {texto: "Ninguém tem maior amor do que este: dar a vida pelos seus amigos.", ref: "João 15:13"},
+            {texto: "Já não vos chamo servos... mas tenho-vos chamado amigos.", ref: "João 15:15"},
+            {texto: "Sede sábios como as serpentes e simples como as pombas.", ref: "Mateus 10:16"},
+            {texto: "Quem quiser salvar a sua vida perdê-la-á; quem perder a sua vida por minha causa achá-la-á.", ref: "Mateus 16:25"},
+            {texto: "Se tendes fé como um grão de mostarda, nada vos será impossível.", ref: "Mateus 17:20"},
+            {texto: "Amarás o Senhor teu Deus de todo o teu coração, de toda a tua alma e de todo o teu entendimento.", ref: "Mateus 22:37"},
+            {texto: "Amarás o teu próximo como a ti mesmo.", ref: "Mateus 22:39"},
+            {texto: "Ide, portanto, fazei discípulos de todas as nações, batizando-os.", ref: "Mateus 28:19"},
+            {texto: "E eis que estou convosco todos os dias, até a consumação dos séculos.", ref: "Mateus 28:20"},
+            {texto: "O Espírito sopra onde quer, e ouves a sua voz, mas não sabes de onde vem.", ref: "João 3:8"},
+            {texto: "Porque não enviei o Filho ao mundo para julgar o mundo, mas para que o mundo seja salvo por ele.", ref: "João 3:17"},
+            {texto: "Ora, aquele que beber da água que eu lhe der nunca terá sede.", ref: "João 4:14"},
+            {texto: "O verdadeiro adorador adorará o Pai em espírito e em verdade.", ref: "João 4:23"},
+            {texto: "Eu sou o pão da vida; quem vem a mim não terá fome.", ref: "João 6:35"},
+            {texto: "O ladrão não vem senão para roubar, matar e destruir. Eu vim para que tenham vida em abundância.", ref: "João 10:10"},
+            {texto: "Eu sou a ressurreição e a vida; quem crê em mim, ainda que morra, viverá.", ref: "João 11:25"},
+            {texto: "Jesus chorou.", ref: "João 11:35"},
+            {texto: "Se eu, o Senhor e o Mestre, vos lavei os pés, também vós deveis lavar os pés uns dos outros.", ref: "João 13:14"},
+            {texto: "Que vos ameis uns aos outros, como eu vos amei.", ref: "João 13:34"},
+            {texto: "Quem crê em mim fará também as obras que eu faço.", ref: "João 14:12"},
+            {texto: "O Consolador, o Espírito Santo, que o Pai enviará em meu nome, vos ensinará tudo.", ref: "João 14:26"},
+            {texto: "Nisto é glorificado meu Pai: em que deis muito fruto.", ref: "João 15:8"},
+            {texto: "Não fostes vós que me escolhestes; fui eu que vos escolhi.", ref: "João 15:16"},
+            {texto: "No mundo tendes tribulações; mas tende bom ânimo; eu venci o mundo.", ref: "João 16:33"},
+            {texto: "Para que sejam um, como nós somos um.", ref: "João 17:22"},
+            {texto: "Arrependei-vos e batizai-vos, cada um de vós, em nome de Jesus Cristo.", ref: "Atos 2:38"},
+            {texto: "Em nenhum outro há salvação; porque debaixo do céu nenhum outro nome há dado entre os homens pelo qual importa que sejamos salvos.", ref: "Atos 4:12"},
+            {texto: "É necessário obedecer a Deus mais do que aos homens.", ref: "Atos 5:29"},
+            {texto: "Crer no Senhor Jesus Cristo e serás salvo, tu e a tua casa.", ref: "Atos 16:31"},
+            {texto: "Nele vivemos, nos movemos e existimos.", ref: "Atos 17:28"},
+            {texto: "O justo viverá pela fé.", ref: "Romanos 1:17"},
+            {texto: "A criação foi sujeita à vaidade... na esperança de que também ela será libertada da escravidão.", ref: "Romanos 8:20-21"},
+            {texto: "O Espírito intercede por nós com gemidos inexprimíveis.", ref: "Romanos 8:26"},
+            {texto: "Sabemos que todas as coisas cooperam para o bem daqueles que amam a Deus.", ref: "Romanos 8:28"},
+            {texto: "Se Deus é por nós, quem será contra nós?", ref: "Romanos 8:31"},
+            {texto: "A fé vem pelo ouvir, e o ouvir pela palavra de Cristo.", ref: "Romanos 10:17"},
+            {texto: "Portanto, irmãos, rogo-vos que apresenteis os vossos corpos como sacrifício vivo.", ref: "Romanos 12:1"},
+            {texto: "Não vos vingareis, mas dai lugar à ira, porque está escrito: A mim pertence a vingança.", ref: "Romanos 12:19"},
+            {texto: "Se o teu inimigo tem fome, dá-lhe de comer; se tem sede, dá-lhe de beber.", ref: "Romanos 12:20"},
+            {texto: "A noite está avançada; o dia está próximo. Lancemos as obras das trevas.", ref: "Romanos 13:12"},
+            {texto: "Sede firmes, inabaláveis, sempre abundantes na obra do Senhor.", ref: "1 Coríntios 15:58"},
+            {texto: "A morte foi tragada pela vitória. Onde está, ó morte, o teu aguilhão?", ref: "1 Coríntios 15:54-55"},
+            {texto: "Porque a letra mata, mas o Espírito vivifica.", ref: "2 Coríntios 3:6"},
+            {texto: "O nosso momentâneo e leve peso de tribulação produz para nós um peso eterno e incomparável de glória.", ref: "2 Coríntios 4:17"},
+            {texto: "Andamos por fé e não por vista.", ref: "2 Coríntios 5:7"},
+            {texto: "Aquele que não conheceu pecado, Deus o fez pecado por nós.", ref: "2 Coríntios 5:21"},
+            {texto: "Basta-te a minha graça, porque o poder se aperfeiçoa na fraqueza.", ref: "2 Coríntios 12:9"},
+            {texto: "O fruto do Espírito é: amor, alegria, paz, longanimidade, benignidade, bondade, fidelidade.", ref: "Gálatas 5:22"},
+            {texto: "Não erreis: de Deus não se zomba; porque tudo o que o homem semear isso também ceifará.", ref: "Gálatas 6:7"},
+            {texto: "Porque somos feitura dele, criados em Cristo Jesus para boas obras.", ref: "Efésios 2:10"},
+            {texto: "Sede benignos uns para com os outros, misericordiosos, perdoando-vos mutuamente.", ref: "Efésios 4:32"},
+            {texto: "Tomai o elmo da salvação e a espada do Espírito, que é a palavra de Deus.", ref: "Efésios 6:17"},
+            {texto: "Tudo o que é verdadeiro, tudo o que é honesto... nisso pensai.", ref: "Filipenses 4:8"},
+            {texto: "Aprendi a estar contente em qualquer situação em que me encontre.", ref: "Filipenses 4:11"},
+            {texto: "A palavra de Cristo habite em vós ricamente, em toda a sabedoria.", ref: "Colossenses 3:16"},
+            {texto: "Tudo o que fizerdes, fazei-o de todo o coração, como ao Senhor.", ref: "Colossenses 3:23"},
+            {texto: "Orai sem cessar.", ref: "1 Tessalonicenses 5:17"},
+            {texto: "Porque há um só Deus e um só Mediador entre Deus e os homens, Jesus Cristo.", ref: "1 Timóteo 2:5"},
+            {texto: "A piedade com contentamento é grande ganho.", ref: "1 Timóteo 6:6"},
+            {texto: "A raiz de todos os males é o amor ao dinheiro.", ref: "1 Timóteo 6:10"},
+            {texto: "O Senhor me livrou de todos os maus intentos e me preservará para o seu reino celestial.", ref: "2 Timóteo 4:18"},
+            {texto: "Porque a palavra de Deus é viva, eficaz e mais cortante do que qualquer espada.", ref: "Hebreus 4:12"},
+            {texto: "Aproximemo-nos, pois, com confiança, do trono da graça, para que alcancemos misericórdia.", ref: "Hebreus 4:16"},
+            {texto: "Não abandoneis a vossa confiança, que tem grande recompensa.", ref: "Hebreus 10:35"},
+            {texto: "Corramos com perseverança a corrida que nos está proposta.", ref: "Hebreus 12:1"},
+            {texto: "Jesus Cristo é o mesmo, ontem, hoje e sempre.", ref: "Hebreus 13:8"},
+            {texto: "Toda boa dádiva e todo dom perfeito são lá do alto.", ref: "Tiago 1:17"},
+            {texto: "A fé, se não tiver obras, é morta em si mesma.", ref: "Tiago 2:17"},
+            {texto: "Resisti ao diabo, e ele fugirá de vós. Chegai-vos a Deus, e ele se chegará a vós.", ref: "Tiago 4:7-8"},
+            {texto: "A oração eficaz do justo pode muito.", ref: "Tiago 5:16"},
+            {texto: "Fostes resgatados com um sangue precioso, como de um cordeiro sem defeito e sem mácula.", ref: "1 Pedro 1:19"},
+            {texto: "Vós sois a geração eleita, o sacerdócio real, a nação santa.", ref: "1 Pedro 2:9"},
+            {texto: "Sede sóbrios e vigilantes. O diabo, vosso adversário, anda em derredor.", ref: "1 Pedro 5:8"},
+            {texto: "Deus resiste aos soberbos, mas dá graça aos humildes.", ref: "1 Pedro 5:5"},
+            {texto: "Se confessarmos os nossos pecados, ele é fiel e justo para nos perdoar.", ref: "1 João 1:9"},
+            {texto: "Deus é amor, e quem permanece no amor permanece em Deus.", ref: "1 João 4:16"},
+            {texto: "O perfeito amor lança fora o temor.", ref: "1 João 4:18"},
+            {texto: "Esta é a vitória que venceu o mundo: a nossa fé.", ref: "1 João 5:4"},
+            {texto: "Amado, peço que prosperes em tudo e tenhas saúde.", ref: "3 João 1:2"},
+            {texto: "Ao que pode fazer muito mais do que tudo quanto pedimos ou pensamos, seja dada a glória.", ref: "Efésios 3:20"},
+            {texto: "Que o Deus da esperança vos encha de toda alegria e paz no crer.", ref: "Romanos 15:13"},
+            {texto: "Graças a Deus, que nos dá a vitória por nosso Senhor Jesus Cristo.", ref: "1 Coríntios 15:57"},
+            {texto: "Por isso, não desanimamos. Mesmo que por fora estejamos nos desgastando, por dentro estamos sendo renovados dia a dia.", ref: "2 Coríntios 4:16"},
+            {texto: "Agora, pois, permanecem a fé, a esperança e o amor, estes três; mas o maior destes é o amor.", ref: "1 Coríntios 13:13"},
+            {texto: "Não deve o forte agradar a si mesmo.", ref: "Romanos 15:1"},
+            {texto: "Sede cheios do Espírito, falando entre vós com salmos, hinos e cânticos espirituais.", ref: "Efésios 5:18-19"},
+            {texto: "Não se turbe o vosso coração, nem se atemorize.", ref: "João 14:27"},
+            {texto: "Mas agora, em Cristo Jesus, vós que antes estáveis longe, tornastes chegados.", ref: "Efésios 2:13"},
+            {texto: "Porque pela graça sois salvos, mediante a fé; e isto não vem de vós, é dom de Deus.", ref: "Efésios 2:8"},
+            {texto: "E a paz de Deus, que excede todo o entendimento, guardará os vossos corações e os vossos pensamentos.", ref: "Filipenses 4:7"},
+            {texto: "Não se turbe o vosso coração; credes em Deus, crede também em mim.", ref: "João 14:1"},
+            {texto: "Bem-aventurado o homem que acha sabedoria, e o homem que adquire entendimento.", ref: "Provérbios 3:13"},
+            {texto: "Melhor é um punhado com descanso do que dois punhados com trabalho e aflição do espírito.", ref: "Eclesiastes 4:6"},
+            {texto: "Eis que estou à porta e bato; se alguém ouvir a minha voz e abrir a porta, entrarei.", ref: "Apocalipse 3:20"},
+            {texto: "Eu sou o Alfa e o Ômega, o princípio e o fim.", ref: "Apocalipse 21:6"},
+            {texto: "E enxugará dos seus olhos toda a lágrima; e não haverá mais morte, nem pranto.", ref: "Apocalipse 21:4"},
         ];
 
-        async function init() {
-            definirDataAtual();
-            gerarMarqueeContinuo();
-            
-            const mAtual = new Date().toLocaleString('pt-BR', { month: 'long' });
-            mesSelecionadoPreSync = mAtual.charAt(0).toUpperCase() + mAtual.slice(1);
-            anoSelecionadoPreSync = new Date().getFullYear().toString();
-            
-            await carregarDados();
+        function iniciarMarquee() {
+            const track = document.getElementById('versiculoTrack');
+            if (!track) return;
+            const html = versiculos.map(v =>
+                `<span class="versiculo-item"><span class="versiculo-texto">&#8220;${v.texto}&#8221;</span><span class="versiculo-ref">&#8212; ${v.ref}</span></span><span class="versiculo-sep">&#10022;</span>`
+            ).join('');
+            // Duplicar para loop contínuo sem salto
+            track.innerHTML = html + html;
         }
 
-        function definirDataAtual() {
-            const hoje = new Date();
-            document.getElementById('data-atual').innerText = hoje.toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        // ===== PROGRESSO =====
+        function setProgress(pct, msg) {
+            const bar = document.getElementById('progressBar');
+            const lbl = document.getElementById('progressLabel');
+            const txt = document.getElementById('loadingMsg');
+            if (bar) bar.style.width = pct + '%';
+            if (lbl) lbl.textContent = pct + '%';
+            if (txt && msg) txt.textContent = msg;
         }
 
-        function gerarMarqueeContinuo() {
-            let embaralhado = [...versiculosBase].sort(() => Math.random() - 0.5);
-            let stringUnica = embaralhado.join(' <span class="marquee-divisor">❖</span> ');
-            document.getElementById('espaco-versiculo').innerHTML = stringUnica + ' <span class="marquee-divisor">❖</span> ' + stringUnica;
+        // ===== ATUALIZAR =====
+        async function atualizarDados() {
+            const btn = document.getElementById('btnAtualizar');
+            btn.disabled = true;
+            btn.classList.add('girando');
+            document.getElementById('statusTexto').textContent = 'Atualizando...';
+            try {
+                await init(true);
+            } finally {
+                btn.disabled = false;
+                btn.classList.remove('girando');
+            }
         }
 
-        function lancarToastSucesso() {
-            const toast = document.getElementById('toast');
-            toast.classList.add('mostrar');
-            setTimeout(() => { toast.classList.remove('mostrar'); }, 3000);
+        // RECOLOQUE AQUI O LINK DA SUA API ORIGINAL (A QUE USA .getValues())
+        const URL_API = 'https://script.google.com/macros/s/AKfycbx6QOcT5EzqH6Rk0E9ZX6L6gGcVUcDUsclsH7-w6fk2CjMKQ6M2LTOMbKhVIU19BbdU/exec';
+
+        let dadosMapa = [];
+        let dadosMensais = [];
+        let dadosDiarios = [];
+        let statusFiltro = 'todos';
+        let mesSelecionado = 'todos';
+        let anoSelecionado = 'todos';
+
+        // Mantém a formatação de moeda perfeita original
+        function formatarMoeda(valor) {
+            if (valor === undefined || valor === null || isNaN(valor)) return 'R$ 0,00';
+            return 'R$ ' + valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
-        function moverProgresso(porcentagem, texto) {
-            const container = document.getElementById('loading-progress');
-            const fill = document.getElementById('progress-fill');
-            const txtElement = document.getElementById('progress-text');
-            const percentElement = document.getElementById('progress-percentage');
-            
-            container.style.display = 'block';
-            fill.style.width = porcentagem + '%';
-            percentElement.innerText = porcentagem + '%';
-            if(texto) txtElement.innerText = texto;
+        function extrairNumero(valor) {
+            if (!valor) return 0;
+            if (typeof valor === 'number') return valor;
+            let str = valor.toString().replace('R$', '').replace(/\s/g, '').trim();
+            if(str.includes('.') && str.includes(',')) {
+                str = str.replace(/\./g, '').replace(',', '.');
+            } else if(str.includes(',')) {
+                str = str.replace(',', '.');
+            }
+            return parseFloat(str) || 0;
+        }
+
+        function limparTexto(texto) {
+            return texto ? texto.toString().trim() : '';
+        }
+
+        // FUNÇÃO DE DATA REPARADA: Converte com total precisão os formatos Date isoladamente
+        function normalizarDataExibicao(valorData) {
+            if (!valorData) return '--';
+            const texto = valorData.toString().trim();
+            if (!texto || texto === '0' || texto === '--') return '--';
+
+            // Se for string pura digitada manualmente como dd/mm/aaaa
+            if (/^\d{1,2}\/\d{1,2}\/\d{4}/.test(texto)) {
+                return texto.split(' ')[0]; 
+            }
+
+            // Tratamento cirúrgico dos objetos Date nativos vindos do .getValues()
+            try {
+                const d = new Date(texto);
+                if (!isNaN(d.getTime())) {
+                    // Evita distorções de fusos horários adicionando meio-dia caso a hora venha zerada
+                    if(texto.includes('00:00:00') || !texto.includes('T')) {
+                        d.setHours(d.getHours() + 12);
+                    }
+                    const dia = String(d.getDate()).padStart(2, '0');
+                    const mes = String(d.getMonth() + 1).padStart(2, '0');
+                    const ano = d.getFullYear();
+                    if (ano > 1900) {
+                        return `${dia}/${mes}/${ano}`;
+                    }
+                }
+            } catch (e) {}
+            return texto;
+        }
+
+        function getStatusClass(status) {
+            const map = { 'No Prazo': 'badge-no-prazo', 'Atrasado': 'badge-atrasado', 'Entregue': 'badge-entregue', 'Na Loja': 'badge-na-loja' };
+            return map[status] || '';
+        }
+
+        function abrirWhatsApp(contato, cliente, produto) {
+            if (!contato) return alert('Contato não preenchido!');
+            let tel = contato.replace(/\D/g, '');
+            if (tel.length <= 11) tel = '55' + tel;
+            const msg = encodeURIComponent(`Olá, ${cliente}, tudo bem? \nPassando aqui pra te avisar que a sua encomenda: ${produto} ficou pronta! 😄👏\n\nPode passar pra retirar em qualquer um dos seguintes horários:\n🕒 Segunda a Sexta Das 07:30h às 12h e de 14:10 às 18h\n🕒 Sábado Das 07:30h às 12h ⚠️ Somente no turno da manhã.\n\nQualquer dúvida, é só chamar! Agradecemos pela confiança e preferência! 💙🧡`);
+            window.open(`https://web.whatsapp.com/send?phone=${tel}&text=${msg}`, '_blank');
         }
 
         async function carregarDados() {
-            try {
-                moverProgresso(15, "🔄 Solicitando conexão ao servidor Google Apps...");
-                
-                const response = await fetch(`${WEB_APP_URL}?_=${new Date().getTime()}`);
-                
-                moverProgresso(55, "📥 Download concluído! Descompactando tabelas BdMapa e BdMeta...");
-                const resultado = await response.json();
-                
-                dadosMapa = resultado.mapa || [];
-                dadosMeta = resultado.meta || [];
+            const response = await fetch(URL_API);
+            return await response.json();
+        }
 
-                moverProgresso(80, "⚙️ Estruturando filtros e aplicando proteções operacionais...");
-
-                if(dadosMapa.length > 0) filtrarPedidos();
+        // Restaura as chaves de dados do seu modelo original intactas
+        function processarBdMeta(dados) {
+            if (!dados || dados.length === 0) return { mensais: [], diarios: [] };
+            const mensais = []; const diarios = [];
+            
+            for (const r of dados) {
+                const m = limparTexto(r['Mês']);
+                const a = limparTexto(r['Ano']);
                 
-                if(dadosMeta.length > 0) {
-                    configurarFiltrosIniciaisMeta();
-                    renderizarFinanceiro();
-                    renderizarFinanceiroDia();
+                if (m || a || extrairNumero(r['Meta Mensal']) > 0) {
+                    mensais.push({
+                        mes: m, ano: a,
+                        dinheiro: extrairNumero(r['Dinheiro']),
+                        pix: extrairNumero(r['Pix']),
+                        cartao: extrairNumero(r['Cartão']),
+                        metaMensal: extrairNumero(r['Meta Mensal']),
+                        acumulado: extrairNumero(r['Acumulado']),
+                        pctMes: extrairNumero(r['% Mês'])
+                    });
                 }
-
-                moverProgresso(100, "✔️ Concluído!");
-                setTimeout(() => {
-                    document.getElementById('loading-progress').style.display = 'none';
-                }, 400);
-
-            } catch (e) {
-                console.error(e);
-                const container = document.getElementById('loading-progress');
-                container.style.backgroundColor = "#FFF5F2";
-                document.getElementById('progress-text').innerHTML = "⚠️ <strong>Erro de Comunicação:</strong> Não foi possível acessar as planilhas.";
-                document.getElementById('progress-fill').style.background = "var(--status-atrasado)";
-            }
-        }
-
-        async function atualizarDadosMantendoFiltros() {
-            const selectMes = document.getElementById('filtro-mes');
-            const selectAno = document.getElementById('filtro-ano');
-            
-            if (selectMes && selectMes.value) mesSelecionadoPreSync = selectMes.value;
-            if (selectAno && selectAno.value) anoSelecionadoPreSync = selectAno.value;
-
-            const btnIcone = document.getElementById('icone-btn');
-            btnIcone.style.transition = "transform 0.6s linear";
-            btnIcone.style.transform = "rotate(360deg)";
-            
-            gerarMarqueeContinuo();
-
-            await carregarDados();
-
-            setTimeout(() => {
-                btnIcone.style.transform = "rotate(0deg)";
-                lancarToastSucesso();
-            }, 600);
-        }
-
-        function configurarFiltrosIniciaisMeta() {
-            const selectMes = document.getElementById('filtro-mes');
-            const selectAno = document.getElementById('filtro-ano');
-
-            const meses = [...new Set(dadosMeta.map(item => item["Mês"]))].filter(Boolean);
-            const anos = [...new Set(dadosMeta.map(item => String(item["Ano"])))].filter(Boolean);
-            
-            selectMes.innerHTML = "";
-            selectAno.innerHTML = "";
-
-            meses.forEach(m => selectMes.add(new Option(m, m)));
-            anos.forEach(a => selectAno.add(new Option(a, a)));
-
-            if(mesSelecionadoPreSync && meses.includes(mesSelecionadoPreSync)) {
-                selectMes.value = mesSelecionadoPreSync;
-            } else {
-                const mAtual = new Date().toLocaleString('pt-BR', { month: 'long' });
-                const mFormatado = mAtual.charAt(0).toUpperCase() + mAtual.slice(1);
-                if(meses.includes(mFormatado)) selectMes.value = mFormatado;
-            }
-            
-            if(anoSelecionadoPreSync && anos.includes(String(anoSelecionadoPreSync))) {
-                selectAno.value = String(anoSelecionadoPreSync);
-            } else {
-                const anoAtual = new Date().getFullYear().toString();
-                if(anos.includes(anoAtual)) selectAno.value = anoAtual;
-            }
-        }
-
-        function renderizarFinanceiro() {
-            if(dadosMeta.length === 0) return;
-            const mesSel = document.getElementById('filtro-mes').value;
-            const anoSel = String(document.getElementById('filtro-ano').value);
-            
-            const registro = dadosMeta.find(item => {
-                return String(item["Mês"]).trim().toLowerCase() === mesSel.trim().toLowerCase() && String(item["Ano"]).trim() === anoSel.trim();
-            });
-
-            if(registro) {
-                document.getElementById('m-acumulado').innerText = formatarMoeda(registro["Acumulado"]);
-                document.getElementById('m-meta').innerText = formatarMoeda(registro["Meta Mensal"]);
-                document.getElementById('m-percent').innerText = formatarPorcentagemDecimais(registro["% Mês"]);
-                document.getElementById('m-dinheiro').innerText = formatarMoeda(registro["Dinheiro"]);
-                document.getElementById('m-pix').innerText = formatarMoeda(registro["Pix"]);
-                document.getElementById('m-cartao').innerText = formatarMoeda(registro["Cartão"]);
-            } else {
-                document.getElementById('m-acumulado').innerText = "R$ 0,00";
-                document.getElementById('m-meta').innerText = "R$ 0,00";
-                document.getElementById('m-percent').innerText = "0,00%";
-                document.getElementById('m-dinheiro').innerText = "R$ 0,00";
-                document.getElementById('m-pix').innerText = "R$ 0,00";
-                document.getElementById('m-cartao').innerText = "R$ 0,00";
-            }
-        }
-
-        function renderizarFinanceiroDia() {
-            if(dadosMeta.length === 0) return;
-            
-            const hoje = new Date();
-            const dia = String(hoje.getDate()).padStart(2, '0');
-            const mes = String(hoje.getMonth() + 1).padStart(2, '0');
-            const ano = hoje.getFullYear();
-            const dataFormatada = `${dia}/${mes}/${ano}`;
-            
-            const registro = dadosMeta.find(item => {
-                if(!item["Resumo Datas"]) return false;
-                let dPlanilha = item["Resumo Datas"];
-                if(dPlanilha instanceof Date || String(dPlanilha).includes('T')) {
-                    dPlanilha = new Date(dPlanilha).toLocaleDateString('pt-BR');
+                
+                const data = limparTexto(r['Resumo Datas']);
+                if (data || extrairNumero(r['Meta Dia']) > 0) {
+                    diarios.push({
+                        data: normalizarDataExibicao(data),
+                        dinheiro: extrairNumero(r['Dinheiro.1'] || r['Dinheiro']),
+                        pix: extrairNumero(r['Pix.1'] || r['Pix']),
+                        cartao: extrairNumero(r['Cartão.1'] || r['Cartão']),
+                        metaDia: extrairNumero(r['Meta Dia']),
+                        recebidoDia: extrairNumero(r['Recebido Entre Datas']),
+                        pctDia: extrairNumero(r['% Dia'])
+                    });
                 }
-                return String(dPlanilha).trim() === dataFormatada;
-            });
-
-            if(registro) {
-                document.getElementById('d-dinheiro').innerText = formatarMoeda(registro["Dinheiro_1"]); 
-                document.getElementById('d-pix').innerText = formatarMoeda(registro["Pix_1"]);
-                document.getElementById('d-cartao').innerText = formatarMoeda(registro["Cartão_1"]);
-                document.getElementById('d-meta').innerText = formatarMoeda(registro["Meta Dia"]);
-                document.getElementById('d-acumulado').innerText = formatarMoeda(registro["Recebido Entre Datas"]);
-                document.getElementById('d-percent').innerText = formatarPorcentagemDecimais(registro["% Dia"]);
             }
+            return { mensais, diarios };
         }
 
-        function formatarPorcentagemDecimais(valor) {
-            if (valor === undefined || valor === null || valor === "" || valor === "0") return "0,00%";
-            let stringValor = String(valor).replace('%', '').trim();
-            let num = parseFloat(stringValor.replace(',', '.'));
-            if (isNaN(num)) return "0,00%";
-            if (num > 0 && num <= 1 && !String(valor).includes(',')) num = num * 100;
-            return num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + "%";
+        function processarBdMapa(dados) {
+            if (!dados || dados.length === 0) return [];
+            return dados.map(r => {
+                return {
+                    comanda: limparTexto(r['Comanda']),
+                    dataPedido: normalizarDataExibicao(r['Data Pedido']),
+                    cliente: limparTexto(r['Pedido Cliente'] || r['Cliente']),
+                    quantidade: parseInt(r['Quantidade']) || 0,
+                    valor: extrairNumero(r['Valor (R$)']),
+                    recebido: extrairNumero(r['Recebido (R$)']),
+                    aReceber: extrairNumero(r['À Receber (R$)']),
+                    segundaParcela: extrairNumero(r['Recebido 2ª Parcela']),
+                    produto: limparTexto(r['Produto']),
+                    prevEntrega: normalizarDataExibicao(r['Prev. de Entrega'] || r['Prev. Entrega']),
+                    contato: limparTexto(r['Contato']),
+                    status: limparTexto(r['Status'])
+                };
+            }).filter(p => p.comanda || p.cliente);
         }
 
-        function setFilterStatus(status) {
-            statusAtivo = status;
-            document.querySelectorAll('.btn-status').forEach(btn => {
-                btn.classList.remove('active');
-                if(btn.getAttribute('data-status') === status) btn.classList.add('active');
+        function popularFiltros(dadosMensais) {
+            const sMes = document.getElementById('filtroMes');
+            const sAno = document.getElementById('filtroAno');
+            const meses = new Set(); const anos = new Set();
+            dadosMensais.forEach(d => { if(d.mes) meses.add(d.mes); if(d.ano) anos.add(d.ano); });
+            
+            const ordem = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+            const dataAtualObj = new Date();
+            const mesAtualNome = ordem[dataAtualObj.getMonth()];
+            const anoAtualNome = dataAtualObj.getFullYear().toString();
+
+            sMes.options.add(new Option('Todos os Meses', 'todos'));
+            Array.from(meses).sort((a,b) => ordem.indexOf(a) - ordem.indexOf(b)).forEach(m => {
+                const opt = new Option(m, m);
+                if(m === mesAtualNome) opt.selected = true;
+                sMes.options.add(opt);
             });
-            filtrarPedidos();
+
+            sAno.options.add(new Option('Todos os Anos', 'todos'));
+            Array.from(anos).sort((a,b) => b-a).forEach(a => {
+                const opt = new Option(a, a);
+                if(a === anoAtualNome) opt.selected = true;
+                sAno.options.add(opt);
+            });
+        }
+
+        function filtrarPorMesAno() {
+            mesSelecionado = document.getElementById('filtroMes').value;
+            anoSelecionado = document.getElementById('filtroAno').value;
+            let f = [...dadosMensais];
+            if (mesSelecionado !== 'todos') f = f.filter(d => d.mes === mesSelecionado);
+            if (anoSelecionado !== 'todos') f = f.filter(d => d.ano === anoSelecionado);
+            renderizarIndicadoresMensais(f);
+            renderizarMetaAcumulado(f);
+        }
+
+        // RESTAURAÇÃO COMPLETA: Fórmulas originais exatas de renderização matemática
+        function renderizarIndicadoresMensais(dados) {
+            let d = 0, p = 0, c = 0;
+            dados.forEach(x => { d += x.dinheiro; p += x.pix; c += x.cartao; });
+            document.getElementById('cardFaturamentoMensal').innerHTML = `
+                <div class="card-titulo">Faturamento Mensal</div>
+                <div class="sub-valores-grid">
+                    <div class="sub-valor-box"><div class="sub-valor-label">Dinheiro</div><div class="sub-valor-num">${formatarMoeda(d)}</div></div>
+                    <div class="sub-valor-box"><div class="sub-valor-label">Pix</div><div class="sub-valor-num">${formatarMoeda(p)}</div></div>
+                    <div class="sub-valor-box"><div class="sub-valor-label">Cartão</div><div class="sub-valor-num">${formatarMoeda(c)}</div></div>
+                </div>
+                <div class="card-detalhe" style="margin-top:12px; font-weight:700;">
+                    <span>Total Tipo:</span><span>${formatarMoeda(d + p + c)}</span>
+                </div>`;
+        }
+
+        function renderizarMetaAcumulado(dados) {
+            let m = 0, a = 0, pct = 0;
+            dados.forEach(x => { m += x.metaMensal; a += x.acumulado; });
+            pct = m > 0 ? (a / m) * 100 : 0;
+            if (pct > 0 && pct <= 1) pct = pct * 100;
+
+            document.getElementById('cardMetaAcumulado').innerHTML = `
+                <div class="card-titulo">Meta vs Acumulado</div>
+                <div class="card-valor">${formatarMoeda(a)}</div>
+                <div class="card-detalhe">
+                    <span>Meta: ${formatarMoeda(m)}</span>
+                    <span style="display:inline-flex; align-items:center; justify-content:center; background:var(--laranja); color:#fff; font-weight:800; font-size:15px; letter-spacing:-0.3px; border-radius:999px; padding:4px 14px; box-shadow:0 2px 8px rgba(249,115,22,0.35);">${pct.toFixed(2)}%</span>
+                </div>`;
+        }
+
+        function renderizarIndicadoresDiarios(dados) {
+            if(!dados.length) return;
+            const hojeFormatado = new Date().toLocaleDateString('pt-BR');
+            let hojeData = dados.find(x => x.data === hojeFormatado);
+            if(!hojeData) hojeData = dados[dados.length - 1];
+
+            document.getElementById('cardFaturamentoDiario').innerHTML = `
+                <div class="card-titulo">Faturamento Diário (${hojeData.data})</div>
+                <div class="sub-valores-grid">
+                    <div class="sub-valor-box"><div class="sub-valor-label">Dinheiro</div><div class="sub-valor-num">${formatarMoeda(hojeData.dinheiro)}</div></div>
+                    <div class="sub-valor-box"><div class="sub-valor-label">Pix</div><div class="sub-valor-num">${formatarMoeda(hojeData.pix)}</div></div>
+                    <div class="sub-valor-box"><div class="sub-valor-label">Cartão</div><div class="sub-valor-num">${formatarMoeda(hojeData.cartao)}</div></div>
+                </div>
+                <div class="card-detalhe" style="margin-top:12px; font-weight:700;">
+                    <span>Total Dia:</span><span>${formatarMoeda(hojeData.dinheiro + hojeData.pix + hojeData.cartao)}</span>
+                </div>`;
+        }
+
+        function renderizarMetaDiaria(dados) {
+            if(!dados.length) return;
+            const hojeFormatado = new Date().toLocaleDateString('pt-BR');
+            let hojeData = dados.find(x => x.data === hojeFormatado);
+            if(!hojeData) hojeData = dados[dados.length - 1];
+
+            let pct = hojeData.pctDia;
+            if (pct > 0 && pct <= 1) pct = pct * 100;
+
+            document.getElementById('cardMetaDiaria').innerHTML = `
+                <div class="card-titulo">Meta Diária</div>
+                <div class="card-valor">${formatarMoeda(hojeData.recebidoDia)}</div>
+                <div class="card-detalhe">
+                    <span>Meta Dia: ${formatarMoeda(hojeData.metaDia)}</span>
+                    <span style="display:inline-flex; align-items:center; justify-content:center; background:#10b981; color:#fff; font-weight:800; font-size:15px; letter-spacing:-0.3px; border-radius:999px; padding:4px 14px; box-shadow:0 2px 8px rgba(16,185,129,0.35);">${pct.toFixed(2)}%</span>
+                </div>`;
+        }
+
+        function renderizarPedidos(pedidos) {
+            document.getElementById('totalPedidos').textContent = pedidos.length;
+            let vt = 0, vr = 0, qt = 0;
+            pedidos.forEach(p => { vt += p.valor; vr += p.aReceber; qt += p.quantidade; });
+            document.getElementById('totalPecas').textContent = qt.toLocaleString('pt-BR');
+            document.getElementById('valorTotalFiltrado').textContent = formatarMoeda(vt);
+            document.getElementById('valorReceberFiltrado').textContent = formatarMoeda(vr);
+
+            document.getElementById('tabelaPedidos').innerHTML = pedidos.length === 0 ? 
+                `<tr><td colspan="13" style="text-align:center;padding:30px;color:#94a3b8;">Nenhum registro localizado com estes filtros.</td></tr>` :
+                pedidos.map(p => `
+                    <tr>
+                        <td><strong>${p.comanda}</strong></td>
+                        <td>${p.dataPedido}</td>
+                        <td>${p.cliente}</td>
+                        <td>${p.quantidade}</td>
+                        <td>${formatarMoeda(p.valor)}</td>
+                        <td>${formatarMoeda(p.recebido)}</td>
+                        <td>${formatarMoeda(p.segundaParcela)}</td>
+                        <td style="font-weight:600; color:${p.aReceber > 0 ? '#b91c1c' : '#15803d'};">${formatarMoeda(p.aReceber)}</td>
+                        <td>${p.produto}</td>
+                        <td>${p.prevEntrega}</td>
+                        <td>${p.contato}</td>
+                        <td><span class="badge ${getStatusClass(p.status)}">${p.status || '--'}</span></td>
+                        <td>
+                            <button class="btn-whatsapp" ${p.status === 'Na Loja' && p.contato ? '' : 'disabled'} onclick="abrirWhatsApp('${p.contato}', '${p.cliente}', '${p.produto}')">
+                                💬 Enviar
+                            </button>
+                        </td>
+                    </tr>`).join('');
         }
 
         function filtrarPedidos() {
-            const comandaBusca = document.getElementById('busca-comanda').value.toLowerCase().trim();
-            const clienteBusca = document.getElementById('busca-cliente').value.toLowerCase().trim();
-            const buscaGlobal = document.getElementById('busca-global').value.toLowerCase().trim();
+            const cmd = document.getElementById('buscaComanda').value.toLowerCase().trim();
+            const cli = document.getElementById('buscaCliente').value.toLowerCase().trim();
+            const gbl = document.getElementById('buscaGlobal').value.toLowerCase().trim();
+            
+            let f = [...dadosMapa];
+            if (statusFiltro !== 'todos') f = f.filter(p => p.status === statusFiltro);
+            if (cmd) f = f.filter(p => p.comanda.toLowerCase().includes(cmd));
+            if (cli) f = f.filter(p => p.cliente.toLowerCase().includes(cli));
+            if (gbl) {
+                f = f.filter(p => p.comanda.toLowerCase().includes(gbl) || 
+                                  p.cliente.toLowerCase().includes(gbl) || 
+                                  p.produto.toLowerCase().includes(gbl) || 
+                                  p.contato.toLowerCase().includes(gbl));
+            }
+            renderizarPedidos(f);
+        }
 
-            let qtdPedidos = 0; let valorTotal = 0; let valorAReceber = 0;
-            const tbody = document.getElementById('dados-tabela');
-            tbody.innerHTML = "";
-
-            dadosMapa.forEach(pedido => {
-                const matchComanda = comandaBusca === "" || (pedido["Comanda"] && String(pedido["Comanda"]).toLowerCase().includes(comandaBusca));
-                const matchCliente = clienteBusca === "" || (pedido["Cliente"] && String(pedido["Cliente"]).toLowerCase().includes(clienteBusca));
-                const matchStatus = statusAtivo === "Todos" || (pedido["Status"] && String(pedido["Status"]).trim().toLowerCase() === statusAtivo.toLowerCase());
-                
-                let matchGlobal = true;
-                if(buscaGlobal !== "") {
-                    matchGlobal = Object.values(pedido).some(val => String(val).toLowerCase().includes(buscaGlobal));
+        async function init(atualizando = false) {
+            try {
+                if (atualizando) {
+                    document.getElementById('conteudo').style.display = 'none';
+                    document.getElementById('loading').style.display = 'block';
+                    setProgress(0, 'Reconectando à planilha...');
                 }
+                setProgress(10, 'Conectando à planilha...');
+                const dados = await carregarDados();
+                if(dados.erro) throw new Error(dados.erro);
 
-                if(matchComanda && matchCliente && matchStatus && matchGlobal) {
-                    qtdPedidos++;
-                    valorTotal += tratarNumero(pedido["Valor (R$)"]);
-                    valorAReceber += tratarNumero(pedido["À Receber (R$)"]);
+                setProgress(50, 'Processando dados...');
+                const meta = processarBdMeta(dados.meta);
+                dadosMensais = meta.mensais; dadosDiarios = meta.diarios;
+                dadosMapa = processarBdMapa(dados.mapa);
 
-                    let dtPedido = pedido["Pedido"] || '-';
-                    if(String(dtPedido).includes('T') || dtPedido instanceof Date) dtPedido = new Date(dtPedido).toLocaleDateString('pt-BR');
-                    
-                    let prevEntrega = pedido["Prev. Entrega"] || '-';
-                    if(String(prevEntrega).includes('T') || prevEntrega instanceof Date) prevEntrega = new Date(prevEntrega).toLocaleDateString('pt-BR');
+                setProgress(75, 'Renderizando indicadores...');
+                popularFiltros(dadosMensais);
+                filtrarPorMesAno();
+                renderizarIndicadoresDiarios(dadosDiarios);
+                renderizarMetaDiaria(dadosDiarios);
+                renderizarPedidos(dadosMapa);
 
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td><strong>${pedido["Comanda"] || '-'}</strong></td>
-                        <td>${dtPedido}</td>
-                        <td>${pedido["Cliente"] || '-'}</td>
-                        <td>${pedido["Quantidade"] || '0'}</td>
-                        <td>${formatarMoeda(pedido["Valor (R$)"])}</td>
-                        <td>${formatarMoeda(pedido["Recebido (R$)"])}</td>
-                        <td>${formatarMoeda(pedido["Recebido 2ª Parcela"] || pedido["Recebido 2ª"])}</td> 
-                        <td style="font-weight:600; color:${tratarNumero(pedido["À Receber (R$)"]) > 0 ? 'var(--status-atrasado)': 'inherit'}">${formatarMoeda(pedido["À Receber (R$)"])}</td>
-                        <td>${pedido["Produto"] || '-'}</td>
-                        <td>${prevEntrega}</td>
-                        <td><span class="badge ${retornarClasseStatus(pedido["Status"])}">${pedido["Status"] || 'Sem Status'}</span></td>
-                    `;
-                    tbody.appendChild(tr);
-                }
-            });
-
-            document.getElementById('total-pedidos').innerText = qtdPedidos;
-            document.getElementById('total-valor').innerText = valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            document.getElementById('total-areceber').innerText = valorAReceber.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                setProgress(100, 'Pronto!');
+                document.getElementById('dataAtual').textContent = new Date().toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                document.getElementById('statusTexto').textContent = 'Conectado ✓';
+                setTimeout(() => {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('conteudo').style.display = 'block';
+                }, 350);
+            } catch (e) {
+                document.getElementById('loading').innerHTML = `<div class="erro"><strong>⚠️ Erro ao sincronizar dados da Planilha</strong><p>${e.message}</p></div>`;
+            }
         }
 
-        function tratarNumero(valor) {
-            if(!valor) return 0;
-            if(typeof valor === 'number') return valor;
-            let limpo = valor.replace("R$", "").replace(/\s/g, "").replace(/\./g, "").replace(",", ".");
-            return parseFloat(limpo) || 0;
-        }
+        document.getElementById('btnAplicarFiltros').addEventListener('click', filtrarPorMesAno);
+        document.getElementById('btnLimparFiltros').addEventListener('click', () => { document.getElementById('filtroMes').value = 'todos'; document.getElementById('filtroAno').value = 'todos'; filtrarPorMesAno(); });
+        document.querySelectorAll('.status-btn').forEach(b => b.addEventListener('click', function() { document.querySelectorAll('.status-btn').forEach(x => x.classList.remove('active')); this.classList.add('active'); statusFiltro = this.dataset.status; filtrarPedidos(); }));
+        document.getElementById('btnBuscarPedidos').addEventListener('click', filtrarPedidos);
+        document.getElementById('btnLimparFiltrosPedidos').addEventListener('click', () => { document.getElementById('buscaComanda').value = ''; document.getElementById('buscaCliente').value = ''; document.getElementById('buscaGlobal').value = ''; statusFiltro = 'todos'; filtrarPedidos(); });
 
-        function formatarMoeda(valor) {
-            if(!valor) return "R$ 0,00";
-            if(typeof valor === 'string' && valor.includes('R$')) return valor;
-            let num = typeof valor === 'string' ? tratarNumero(valor) : valor;
-            return num.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        }
-
-        function retornarClasseStatus(status) {
-            if(!status) return "";
-            const s = String(status).toLowerCase().trim();
-            if(s === "no prazo") return "no-prazo";
-            if(s === "atrasado") return "atrasado";
-            if(s === "entregue") return "entregue";
-            if(s === "na loja") return "na-loja";
-            return "";
-        }
-
-        window.onload = init;
+        iniciarMarquee();
+        init();
     </script>
 </body>
 </html>
