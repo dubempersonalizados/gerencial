@@ -527,10 +527,6 @@
         </div>
     </header>
 
-    <div class="versiculo-banner">
-        <div class="versiculo-track" id="versiculoTrack"></div>
-    </div>
-
     <div id="loading" class="loading-container">
         <div class="spinner"></div>
         <p style="color: #64748b; font-size: 14px;" id="loadingMsg">Conectando à planilha...</p>
@@ -996,10 +992,11 @@
 
         function processarBdMapa(dados) {
             if (!dados || dados.length === 0) return [];
+            if (dados.length > 0) console.log('[DUBEM] Chaves da 1ª linha do mapa:', Object.keys(dados[0]));
             return dados.map(r => {
                 return {
                     comanda: limparTexto(r['Comanda']),
-                    dataPedido: normalizarDataExibicao(r['Data Pedido']),
+                    dataPedido: normalizarDataExibicao(r['Pedido'] || r['Data Pedido'] || r['Data do Pedido'] || r['data_pedido'] || r['Data'] || ''),
                     cliente: limparTexto(r['Pedido Cliente'] || r['Cliente']),
                     quantidade: parseInt(r['Quantidade']) || 0,
                     valor: extrairNumero(r['Valor (R$)']),
@@ -1208,7 +1205,6 @@
         document.getElementById('btnBuscarPedidos').addEventListener('click', filtrarPedidos);
         document.getElementById('btnLimparFiltrosPedidos').addEventListener('click', () => { document.getElementById('buscaComanda').value = ''; document.getElementById('buscaCliente').value = ''; document.getElementById('buscaGlobal').value = ''; statusFiltro = 'todos'; filtrarPedidos(); });
 
-        iniciarMarquee();
         init();
     </script>
 </body>
