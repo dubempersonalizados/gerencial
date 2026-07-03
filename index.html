@@ -405,6 +405,20 @@
         .badge-entregue { background-color: #e0f2fe; color: #0369a1; }
         .badge-na-loja { background-color: #fef3c7; color: #b45309; }
 
+        /* ===== BADGE DE DIAS (A VENCER / VENCIDO) ===== */
+        .badge-dias {
+            display: inline-block;
+            margin-top: 4px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .badge-dias-vencer { background-color: #fff7ed; color: var(--laranja-escuro); border: 1px solid #fed7aa; }
+        .badge-dias-vencido { background-color: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+
         .btn-whatsapp {
             background-color: #25d366;
             color: white;
@@ -940,11 +954,53 @@
             return map[status] || '';
         }
 
-        function abrirWhatsApp(contato, cliente, produto) {
+        // Calcula a diferença em dias entre a Prev. de Entrega (dd/mm/aaaa) e hoje.
+        // Retorno positivo = dias restantes para vencer | Retorno negativo = dias já vencidos | null = data inválida
+        function calcularDiferencaDias(prevEntregaStr) {
+            if (!prevEntregaStr || prevEntregaStr === '--') return null;
+            const partes = prevEntregaStr.split('/');
+            if (partes.length !== 3) return null;
+            const dataPrev = new Date(parseInt(partes[2]), parseInt(partes[1]) - 1, parseInt(partes[0]));
+            if (isNaN(dataPrev.getTime())) return null;
+            dataPrev.setHours(0, 0, 0, 0);
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
+            return Math.round((dataPrev - hoje) / (1000 * 60 * 60 * 24));
+        }
+
+        // Gera o badge visual de dias (à vencer / vencido) conforme o status do pedido
+        function gerarBadgeDias(status, prevEntrega) {
+            const dif = calcularDiferencaDias(prevEntrega);
+            if (dif === null) return '';
+            if (status === 'No Prazo') {
+                const dias = dif < 0 ? 0 : dif;
+                return `<span class="badge-dias badge-dias-vencer">à vencer em ${dias} dia${dias === 1 ? '' : 's'}</span>`;
+            }
+            if (status === 'Atrasado') {
+                const dias = Math.abs(dif);
+                return `<span class="badge-dias badge-dias-vencido">vencido há ${dias} dia${dias === 1 ? '' : 's'}</span>`;
+            }
+            return '';
+        }
+
+        function abrirWhatsApp(status, contato, cliente, produto, comanda, prevEntrega) {
             if (!contato) return alert('Contato não preenchido!');
             let tel = contato.replace(/\D/g, '');
             if (tel.length <= 11) tel = '55' + tel;
-            const msg = encodeURIComponent(`Olá, ${cliente}, tudo bem? \nPassando aqui pra te avisar que a sua encomenda: ${produto} ficou pronta! 😄👏\n\nPode passar pra retirar em qualquer um dos seguintes horários:\n🕒 Segunda a Sexta Das 07:30h às 12h e de 14:10 às 18h\n🕒 Sábado Das 07:30h às 12h ⚠️ Somente no turno da manhã.\n\nQualquer dúvida, é só chamar! Agradecemos pela confiança e preferência! 💙🧡`);
+            let msg;
+
+            if (status === 'No Prazo') {
+                const dif = calcularDiferencaDias(prevEntrega);
+                const dias = dif !== null && dif > 0 ? dif : 0;
+                msg = encodeURIComponent(`Olá, ${cliente}, seu pedido ${comanda} - ${produto}, com previsão de entrega para o dia: ${prevEntrega}, vencerá em ${dias} dias.\n\nA loja DUBEM agradece pela preferência e parceria!`);
+            } else if (status === 'Atrasado') {
+                const dif = calcularDiferencaDias(prevEntrega);
+                const dias = dif !== null ? Math.abs(dif) : 0;
+                msg = encodeURIComponent(`Olá, ${cliente}, seu pedido ${comanda} - ${produto}, com previsão de entrega para o dia: ${prevEntrega}, venceu a ${dias} dias.\n\nA loja DUBEM agradece pela preferência e parceria!`);
+            } else {
+                msg = encodeURIComponent(`Olá, ${cliente}, tudo bem? \nPassando aqui pra te avisar que a sua encomenda: ${produto} ficou pronta! 😄👏\n\nPode passar pra retirar em qualquer um dos seguintes horários:\n🕒 Segunda a Sexta Das 07:30h às 12h e de 14:10 às 18h\n🕒 Sábado Das 07:30h às 12h ⚠️ Somente no turno da manhã.\n\nQualquer dúvida, é só chamar! Agradecemos pela confiança e preferência! 💙🧡`);
+            }
+
             window.open(`https://web.whatsapp.com/send?phone=${tel}&text=${msg}`, '_blank');
         }
 
@@ -1135,11 +1191,11 @@
                         <td>${formatarMoeda(p.segundaParcela)}</td>
                         <td style="font-weight:600; color:${p.aReceber > 0 ? '#b91c1c' : '#15803d'};">${formatarMoeda(p.aReceber)}</td>
                         <td>${p.produto}</td>
-                        <td>${p.prevEntrega}</td>
+                        <td>${p.prevEntrega}${gerarBadgeDias(p.status, p.prevEntrega) ? '<br>' + gerarBadgeDias(p.status, p.prevEntrega) : ''}</td>
                         <td>${p.contato}</td>
                         <td><span class="badge ${getStatusClass(p.status)}">${p.status || '--'}</span></td>
                         <td>
-                            <button class="btn-whatsapp" ${p.status === 'Na Loja' && p.contato ? '' : 'disabled'} onclick="abrirWhatsApp('${p.contato}', '${p.cliente}', '${p.produto}')">
+                            <button class="btn-whatsapp" ${(p.status === 'Na Loja' || p.status === 'No Prazo' || p.status === 'Atrasado') && p.contato ? '' : 'disabled'} onclick="abrirWhatsApp('${p.status}', '${p.contato}', '${p.cliente}', '${p.produto}', '${p.comanda}', '${p.prevEntrega}')">
                                 💬 Enviar
                             </button>
                         </td>
