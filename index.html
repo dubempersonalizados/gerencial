@@ -79,6 +79,154 @@
             border-radius: 50%;
         }
 
+        /* ===== ALERTA DE PEDIDOS A VENCER ===== */
+        .alerta-vencimento {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+            border-left: 4px solid var(--laranja);
+            color: var(--laranja-escuro);
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .alerta-vencimento .alerta-icone {
+            font-size: 18px;
+            line-height: 1;
+        }
+
+        .alerta-vencimento {
+            cursor: pointer;
+        }
+
+        .alerta-vencimento .alerta-dica {
+            margin-left: auto;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--laranja-escuro);
+            opacity: 0.75;
+            white-space: nowrap;
+        }
+
+        /* ===== MODAL DE PEDIDOS A VENCER ===== */
+        .modal-overlay-vencimento {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 36, 99, 0.55);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-vencimento-box {
+            background: #ffffff;
+            border-radius: 12px;
+            max-width: 520px;
+            width: 100%;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .modal-vencimento-header {
+            background: linear-gradient(135deg, var(--azul-marinho), var(--azul-marinho-escuro));
+            color: white;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-vencimento-header h2 {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .modal-vencimento-fechar {
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: white;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 14px;
+            line-height: 1;
+        }
+
+        /* Botão de Imprimir Modal */
+        .btn-imprimir {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-imprimir:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .modal-vencimento-corpo {
+            padding: 16px 20px;
+            overflow-y: auto;
+        }
+
+        .modal-vencimento-grupo-titulo {
+            color: var(--laranja-escuro);
+            font-weight: 700;
+            font-size: 13px;
+            margin: 16px 0 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .modal-vencimento-grupo-titulo:first-child {
+            margin-top: 0;
+        }
+
+        .modal-vencimento-item {
+            border: 1px solid var(--cinza-borda);
+            border-left: 3px solid var(--laranja);
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: #334155;
+        }
+
+        .modal-vencimento-item strong {
+            color: #1e293b;
+        }
+
+        .modal-vencimento-item .item-qtd {
+            display: inline-block;
+            margin-top: 4px;
+            background: var(--cinza-claro);
+            color: #334155;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
         /* ===== BANNER DE VERSÍCULOS ===== */
         .versiculo-banner {
             background: #ffffff;
@@ -253,6 +401,13 @@
             margin-top: 8px;
             display: flex;
             justify-content: space-between;
+        }
+
+        .sub-valores-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            margin-top: 10px;
         }
 
         .sub-valores-grid {
@@ -541,6 +696,24 @@
         </div>
     </header>
 
+    <div id="alertaVencimento" class="alerta-vencimento"></div>
+
+    <div id="modalOverlayVencimento" class="modal-overlay-vencimento">
+        <div class="modal-vencimento-box">
+            <div class="modal-vencimento-header">
+                <h2>📦 Pedidos a vencer</h2>
+                <div style="display: flex; gap: 12px; align-items: center;">
+                    <button class="btn-imprimir" onclick="imprimirRelatorioVencimento()">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                        Imprimir / PDF
+                    </button>
+                    <button class="modal-vencimento-fechar" onclick="fecharModalVencimento()">✕</button>
+                </div>
+            </div>
+            <div id="modalVencimentoCorpo" class="modal-vencimento-corpo"></div>
+        </div>
+    </div>
+
     <div id="loading" class="loading-container">
         <div class="spinner"></div>
         <p style="color: #64748b; font-size: 14px;" id="loadingMsg">Conectando à planilha...</p>
@@ -652,7 +825,7 @@
     </div>
 
     <script>
-           // ===== PROGRESSO =====
+        // ===== PROGRESSO =====
         function setProgress(pct, msg) {
             const bar = document.getElementById('progressBar');
             const lbl = document.getElementById('progressLabel');
@@ -676,7 +849,6 @@
             }
         }
 
-        // RECOLOQUE AQUI O LINK DA SUA API ORIGINAL (A QUE USA .getValues())
         const URL_API = 'https://script.google.com/macros/s/AKfycbx6QOcT5EzqH6Rk0E9ZX6L6gGcVUcDUsclsH7-w6fk2CjMKQ6M2LTOMbKhVIU19BbdU/exec';
 
         let dadosMapa = [];
@@ -686,7 +858,6 @@
         let mesSelecionado = 'todos';
         let anoSelecionado = 'todos';
 
-        // Mantém a formatação de moeda perfeita original
         function formatarMoeda(valor) {
             if (valor === undefined || valor === null || isNaN(valor)) return 'R$ 0,00';
             return 'R$ ' + valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -708,22 +879,18 @@
             return texto ? texto.toString().trim() : '';
         }
 
-        // FUNÇÃO DE DATA REPARADA: Converte com total precisão os formatos Date isoladamente
         function normalizarDataExibicao(valorData) {
             if (!valorData) return '--';
             const texto = valorData.toString().trim();
             if (!texto || texto === '0' || texto === '--') return '--';
 
-            // Se for string pura digitada manualmente como dd/mm/aaaa
             if (/^\d{1,2}\/\d{1,2}\/\d{4}/.test(texto)) {
                 return texto.split(' ')[0]; 
             }
 
-            // Tratamento cirúrgico dos objetos Date nativos vindos do .getValues()
             try {
                 const d = new Date(texto);
                 if (!isNaN(d.getTime())) {
-                    // Evita distorções de fusos horários adicionando meio-dia caso a hora venha zerada
                     if(texto.includes('00:00:00') || !texto.includes('T')) {
                         d.setHours(d.getHours() + 12);
                     }
@@ -743,8 +910,6 @@
             return map[status] || '';
         }
 
-        // Calcula a diferença em dias entre a Prev. de Entrega (dd/mm/aaaa) e hoje.
-        // Retorno positivo = dias restantes para vencer | Retorno negativo = dias já vencidos | null = data inválida
         function calcularDiferencaDias(prevEntregaStr) {
             if (!prevEntregaStr || prevEntregaStr === '--') return null;
             const partes = prevEntregaStr.split('/');
@@ -757,7 +922,6 @@
             return Math.round((dataPrev - hoje) / (1000 * 60 * 60 * 24));
         }
 
-        // Gera o badge visual de dias (à vencer / vencido) conforme o status do pedido
         function gerarBadgeDias(status, prevEntrega) {
             const dif = calcularDiferencaDias(prevEntrega);
             if (dif === null) return '';
@@ -771,6 +935,354 @@
             }
             return '';
         }
+
+        const DIAS_LIMITE_ALERTA = 3;
+        let pedidosVencendoGlobal = [];
+        function renderizarAlertaVencimento(pedidos, diasLimite = DIAS_LIMITE_ALERTA) {
+            const alertaEl = document.getElementById('alertaVencimento');
+            if (!alertaEl) return;
+
+            const vencendo = (pedidos || []).filter(p => p.status === 'No Prazo').filter(p => {
+                const dif = calcularDiferencaDias(p.prevEntrega);
+                return dif !== null && dif >= 0 && dif <= diasLimite;
+            });
+
+            pedidosVencendoGlobal = vencendo;
+
+            const totalPecas = vencendo.reduce((soma, p) => soma + (p.quantidade || 0), 0);
+
+            if (totalPecas === 0) {
+                alertaEl.style.display = 'none';
+                alertaEl.innerHTML = '';
+                alertaEl.onclick = null;
+                return;
+            }
+
+            alertaEl.style.display = 'flex';
+            alertaEl.innerHTML = `<span class="alerta-icone">⚠️</span> <span>${totalPecas} peça${totalPecas === 1 ? '' : 's'} ${totalPecas === 1 ? 'vence' : 'vencem'} nos próximos ${diasLimite} dias.</span> <span class="alerta-dica">clique para ver detalhes</span>`;
+            alertaEl.onclick = abrirModalVencimento;
+        }
+
+        function timestampDataBR(dataStr) {
+            const partes = (dataStr || '').split('/');
+            if (partes.length !== 3) return 0;
+            return new Date(parseInt(partes[2]), parseInt(partes[1]) - 1, parseInt(partes[0])).getTime();
+        }
+
+        function abrirModalVencimento() {
+            const corpo = document.getElementById('modalVencimentoCorpo');
+            if (!corpo) return;
+
+            if (pedidosVencendoGlobal.length === 0) {
+                corpo.innerHTML = '<p style="color:#64748b; font-size:13px;">Nenhum pedido a vencer no momento.</p>';
+            } else {
+                const grupos = {};
+                pedidosVencendoGlobal.forEach(p => {
+                    const chave = p.prevEntrega || 'Sem data';
+                    if (!grupos[chave]) grupos[chave] = [];
+                    grupos[chave].push(p);
+                });
+
+                const datasOrdenadas = Object.keys(grupos).sort((a, b) => timestampDataBR(a) - timestampDataBR(b));
+
+                corpo.innerHTML = datasOrdenadas.map(data => `
+                    <div class="modal-vencimento-grupo-titulo">📅 ${data}</div>
+                    ${grupos[data].map(p => `
+                        <div class="modal-vencimento-item">
+                            <strong>${p.comanda || 'S/ comanda'}</strong> — ${p.cliente || 'Cliente não informado'}<br>
+                            ${p.produto || ''}
+                            <div class="item-qtd">${p.quantidade || 0} peça${(p.quantidade || 0) === 1 ? '' : 's'}</div>
+                        </div>
+                    `).join('')}
+                `).join('');
+            }
+
+            document.getElementById('modalOverlayVencimento').style.display = 'flex';
+        }
+
+        function fecharModalVencimento() {
+            document.getElementById('modalOverlayVencimento').style.display = 'none';
+        }
+
+        function imprimirRelatorioVencimento() {
+            if (!pedidosVencendoGlobal || pedidosVencendoGlobal.length === 0) {
+                alert('Não há pedidos a vencer para imprimir.');
+                return;
+            }
+
+            let conteudo = `
+                <html>
+                <head>
+                    <title>Relatório de Pedidos a Vencer - DUBEM</title>
+                    <style>
+                        * {
+                            box-sizing: border-box;
+                        }
+                        body { 
+                            font-family: 'Segoe UI', system-ui, sans-serif; 
+                            padding: 0; 
+                            margin: 0;
+                            color: #1e293b; 
+                            background: #f1f5f9; 
+                            font-size: 11px; 
+                            line-height: 1.4; 
+                        }
+                        .folha {
+                            max-width: 900px;
+                            margin: 0 auto;
+                            padding: 28px 32px 20px;
+                            background: white;
+                        }
+                        .header { 
+                            display: flex; 
+                            align-items: center; 
+                            justify-content: space-between; 
+                            margin-bottom: 18px; 
+                            padding-bottom: 18px; 
+                            position: relative;
+                        }
+                        .header::after {
+                            content: '';
+                            position: absolute;
+                            bottom: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 3px;
+                            background: linear-gradient(90deg, #0a2463 0%, #f97316 100%);
+                            border-radius: 3px;
+                        }
+                        .logo { 
+                            max-height: 48px; 
+                        }
+                        .titulo-container { 
+                            text-align: right; 
+                        }
+                        h1 { 
+                            color: #0a2463; 
+                            font-size: 21px; 
+                            margin: 0; 
+                            font-weight: 800; 
+                            text-transform: uppercase; 
+                            letter-spacing: 0.6px; 
+                        }
+                        .data-geracao { 
+                            font-size: 10px; 
+                            color: #94a3b8; 
+                            margin-top: 3px; 
+                        }
+                        .resumo-barra {
+                            display: flex;
+                            gap: 10px;
+                            margin-bottom: 22px;
+                        }
+                        .resumo-chip {
+                            flex: 1;
+                            display: flex;
+                            align-items: center;
+                            gap: 10px;
+                            background: #f8fafc;
+                            border: 1px solid #e2e8f0;
+                            border-left: 3px solid #f97316;
+                            border-radius: 8px;
+                            padding: 10px 14px;
+                        }
+                        .resumo-chip .resumo-icone {
+                            font-size: 18px;
+                            line-height: 1;
+                        }
+                        .resumo-chip .resumo-valor {
+                            font-size: 15px;
+                            font-weight: 800;
+                            color: #0a2463;
+                            line-height: 1.1;
+                        }
+                        .resumo-chip .resumo-label {
+                            font-size: 9px;
+                            color: #64748b;
+                            text-transform: uppercase;
+                            letter-spacing: 0.4px;
+                            font-weight: 600;
+                        }
+                        .grupo-secao { 
+                            page-break-inside: avoid; 
+                            margin-bottom: 16px; 
+                            border: 1px solid #e2e8f0;
+                            border-radius: 10px;
+                            overflow: hidden;
+                        }
+                        .grupo-data { 
+                            font-size: 11.5px; 
+                            color: white; 
+                            background: linear-gradient(90deg, #0a2463, #123a8c); 
+                            padding: 9px 14px; 
+                            font-weight: 700; 
+                            text-transform: uppercase; 
+                            letter-spacing: 0.4px; 
+                            display: flex;
+                            align-items: center;
+                            gap: 6px;
+                        }
+                        table { 
+                            width: 100%; 
+                            border-collapse: collapse; 
+                            font-size: 11px; 
+                        }
+                        th, td { 
+                            padding: 8px 12px; 
+                            text-align: left; 
+                            border-bottom: 1px solid #eef2f6;
+                        }
+                        th { 
+                            background-color: #f8fafc; 
+                            color: #475569; 
+                            font-weight: 700; 
+                            text-transform: uppercase; 
+                            font-size: 9.5px; 
+                            letter-spacing: 0.5px; 
+                            border-bottom: 1px solid #e2e8f0;
+                        }
+                        tbody tr:nth-child(even) { 
+                            background-color: #fafbfc; 
+                        }
+                        tbody tr:last-child td {
+                            border-bottom: none;
+                        }
+                        tbody tr:hover td {
+                            background-color: #fff7ed;
+                        }
+                        .qtd { 
+                            font-weight: 800; 
+                            text-align: center; 
+                            color: #0a2463;
+                        }
+                        tfoot td {
+                            border-bottom: none;
+                            background: #f8fafc;
+                        }
+                        .footer { 
+                            text-align: center; 
+                            margin-top: 26px; 
+                            font-size: 9.5px; 
+                            color: #94a3b8; 
+                            border-top: 1px solid #e2e8f0; 
+                            padding-top: 12px; 
+                        }
+                        @media print {
+                            body { background: white; padding: 0; }
+                            .folha { padding: 0; max-width: 100%; }
+                            @page { margin: 1.2cm; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="folha">
+                    <div class="header">
+                        <img src="https://iili.io/KKfn7x1.png" alt="DUBEM Logo" class="logo">
+                        <div class="titulo-container">
+                            <h1>Controle de Vencimentos</h1>
+                            <div class="data-geracao">Gerado em: ${new Date().toLocaleString('pt-BR')}</div>
+                        </div>
+                    </div>
+                    <div class="resumo-barra">
+                        <div class="resumo-chip">
+                            <span class="resumo-icone">📋</span>
+                            <div>
+                                <div class="resumo-valor">${pedidosVencendoGlobal.length}</div>
+                                <div class="resumo-label">Pedido${pedidosVencendoGlobal.length === 1 ? '' : 's'}</div>
+                            </div>
+                        </div>
+                        <div class="resumo-chip">
+                            <span class="resumo-icone">🧵</span>
+                            <div>
+                                <div class="resumo-valor">${pedidosVencendoGlobal.reduce((s, p) => s + (p.quantidade || 0), 0)}</div>
+                                <div class="resumo-label">Peça${pedidosVencendoGlobal.reduce((s, p) => s + (p.quantidade || 0), 0) === 1 ? '' : 's'}</div>
+                            </div>
+                        </div>
+                        <div class="resumo-chip">
+                            <span class="resumo-icone">⏳</span>
+                            <div>
+                                <div class="resumo-valor">${Object.keys(pedidosVencendoGlobal.reduce((acc, p) => { acc[p.prevEntrega || 'Sem data'] = true; return acc; }, {})).length}</div>
+                                <div class="resumo-label">Dia${Object.keys(pedidosVencendoGlobal.reduce((acc, p) => { acc[p.prevEntrega || 'Sem data'] = true; return acc; }, {})).length === 1 ? '' : 's'} envolvidos</div>
+                            </div>
+                        </div>
+                    </div>
+            `;
+
+            const grupos = {};
+            pedidosVencendoGlobal.forEach(p => {
+                const chave = p.prevEntrega || 'Sem data';
+                if (!grupos[chave]) grupos[chave] = [];
+                grupos[chave].push(p);
+            });
+
+            const datasOrdenadas = Object.keys(grupos).sort((a, b) => timestampDataBR(a) - timestampDataBR(b));
+
+            datasOrdenadas.forEach(data => {
+                conteudo += `<div class="grupo-secao">`;
+                conteudo += `<div class="grupo-data">📅 Previsão de Entrega: ${data}</div>`;
+                conteudo += `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 12%;">Comanda</th>
+                                <th style="width: 28%;">Cliente</th>
+                                <th style="width: 35%;">Produto</th>
+                                <th style="width: 15%;">Designer</th>
+                                <th style="width: 10%; text-align: center;">Qtd</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                let subtotalPecas = 0;
+                grupos[data].forEach(p => {
+                    subtotalPecas += (p.quantidade || 0);
+                    conteudo += `
+                        <tr>
+                            <td><strong>${p.comanda || '--'}</strong></td>
+                            <td>${p.cliente || 'Não informado'}</td>
+                            <td>${p.produto || ''}</td>
+                            <td>${p.designer || '--'}</td>
+                            <td class="qtd">${p.quantidade || 0}</td>
+                        </tr>
+                    `;
+                });
+                
+                conteudo += `
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="4" style="text-align: right; font-weight: 600; font-size: 11px; color: #64748b; border: none; padding-top: 6px;">Total de peças neste dia:</td>
+                                <td class="qtd" style="border: none; padding-top: 6px; font-size: 13px; color: #0f172a;">${subtotalPecas}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                `;
+            });
+
+            conteudo += `
+                    <div class="footer">
+                        DUBEM Produtos e Serviços LTDA - Documento Interno de Controle Operacional
+                    </div>
+                    </div>
+                </body>
+                </html>
+            `;
+
+            const janelaImpressao = window.open('', '_blank');
+            janelaImpressao.document.write(conteudo);
+            janelaImpressao.document.close();
+            
+            setTimeout(() => {
+                janelaImpressao.focus();
+                janelaImpressao.print();
+            }, 500);
+        }
+
+        document.getElementById('modalOverlayVencimento').addEventListener('click', function(e) {
+            if (e.target === this) fecharModalVencimento();
+        });
 
         function abrirWhatsApp(status, contato, cliente, produto, comanda, prevEntrega) {
             if (!contato) return alert('Contato não preenchido!');
@@ -798,7 +1310,6 @@
             return await response.json();
         }
 
-        // Restaura as chaves de dados do seu modelo original intactas
         function processarBdMeta(dados) {
             if (!dados || dados.length === 0) return { mensais: [], diarios: [] };
             const mensais = []; const diarios = [];
@@ -849,6 +1360,7 @@
                     aReceber: extrairNumero(r['À Receber (R$)']),
                     segundaParcela: extrairNumero(r['Recebido 2ª Parcela']),
                     produto: limparTexto(r['Produto']),
+                    designer: limparTexto(r['Designer'] || ''),
                     prevEntrega: normalizarDataExibicao(r['Prev. de Entrega'] || r['Prev. Entrega']),
                     contato: limparTexto(r['Contato']),
                     status: limparTexto(r['Status'])
@@ -892,7 +1404,6 @@
             renderizarMetaAcumulado(f);
         }
 
-        // RESTAURAÇÃO COMPLETA: Fórmulas originais exatas de renderização matemática
         function renderizarIndicadoresMensais(dados) {
             let d = 0, p = 0, c = 0;
             dados.forEach(x => { d += x.dinheiro; p += x.pix; c += x.cartao; });
@@ -1024,8 +1535,9 @@
                 const meta = processarBdMeta(dados.meta);
                 dadosMensais = meta.mensais; dadosDiarios = meta.diarios;
                 dadosMapa = processarBdMapa(dados.mapa);
+                renderizarAlertaVencimento(dadosMapa);
 
-                setProgress(75, 'Renderizando indicadores...');
+                setProgress(75, 'Renderizando indicators...');
                 popularFiltros(dadosMensais);
                 filtrarPorMesAno();
                 renderizarIndicadoresDiarios(dadosDiarios);
